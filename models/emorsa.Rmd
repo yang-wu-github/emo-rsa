@@ -31,8 +31,15 @@ d.M1 <- webppl(
   data = df,
   data_var = "df"
 )
-d.M1 <- data.frame(d.M1)
+
+bind_rows(d.M1$l0) %>% 
+  ggplot(., aes( x= state, y = prob)) +
+  facet_grid(utterance ~ emotion) + 
+  geom_col()
+
+glimpse(bind_rows(d.M1$l1)) 
 ```
+
 ### Model 2: Speech is communicative. Emotional expressions always reflect true evaluation
 ```{r}
 d.M2 <- webppl(
