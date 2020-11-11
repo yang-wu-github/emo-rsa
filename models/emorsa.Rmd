@@ -27,7 +27,7 @@ df <- expand.grid(
 )
 
 d.M1 <- webppl(
-  program_file = here("M1_Both_Com.wppl"),
+  program_file = here("models/M1_Both_Com.wppl"),
   data = df,
   data_var = "df"
 )
@@ -37,8 +37,19 @@ bind_rows(d.M1$l0) %>%
   facet_grid(utterance ~ emotion) + 
   geom_col()
 
-glimpse(bind_rows(d.M1$l1)) 
+glimpse(bind_rows(d.M1$l1))
 ```
+
+
+```{r}
+bind_rows(d.M1$l1) %>%
+  group_by(utterance, emotion, state) %>%
+  summarize(expval = sum(prob)) %>%
+  ggplot(., aes( x = state, y = expval))+
+  geom_col(position = position_dodge())+
+  facet_grid(utterance~emotion)
+```
+
 
 ### Model 2: Speech is communicative. Emotional expressions always reflect true evaluation
 ```{r}
@@ -49,6 +60,20 @@ d.M2 <- webppl(
   )
 d.M2 <- data.frame(d.M2)
 ```
+
+
+### Model 3: Infer whether emo is communicative
+
+```{r}
+d.M3 <- webppl(
+  program_file = here("models/M3_InferEmoCom.wppl"),
+  data = df,
+  data_var = "df"
+  )
+df.M3 <- data.frame(d.M3)
+```
+
+
 ### Human Data
 ```{r}
 d.raw <- read.csv(here("EMORSA2.csv"))
