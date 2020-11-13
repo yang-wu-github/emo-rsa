@@ -460,7 +460,7 @@ dev.off()
 ```
 
 ### M3: Emotion Communicative TRUE/FALSE
-```{r}
+```{r fig5, fig.height=1, fig.width=4}
 M3.PUPE.emoCom <- ggplot(data=d.M3, aes(good_smile.support.emoComm))+
   geom_bar() +
   xlab("EmoCom?") +
@@ -495,8 +495,5 @@ M3.NUPE.emoCom
 
 emoCom <- M3.PUPE.emoCom | M3.NUNE.emoCom | M3.PUNE.emoCom | M3.NUPE.emoCom
 emoCom
-
-pdf("M3_emoCom.pdf")
-emoCom
-dev.off()
+ggsave(here("models/plots_M3_emoCom.pdf"))
 ```
