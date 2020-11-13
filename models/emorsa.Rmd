@@ -1,7 +1,7 @@
 ---
 title: "emorsa"
 author: "YW"
-date: "10/30/2020"
+date: "11/12/2020"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -32,6 +32,8 @@ d.M1 <- webppl(
   data_var = "df"
 )
 
+d.M1 <-  data.frame(d.M1)
+  
 bind_rows(d.M1$l0) %>% 
   ggplot(., aes( x= state, y = prob)) +
   facet_grid(utterance ~ emotion) + 
@@ -54,7 +56,7 @@ bind_rows(d.M1$l1) %>%
 ### Model 2: Speech is communicative. Emotional expressions always reflect true evaluation
 ```{r}
 d.M2 <- webppl(
-  program_file = here("M2_Speech_Com.wppl"),
+  program_file = here("models/M2_Speech_Com.wppl"),
   data = df,
   data_var = "df"
   )
@@ -70,13 +72,13 @@ d.M3 <- webppl(
   data = df,
   data_var = "df"
   )
-df.M3 <- data.frame(d.M3)
+d.M3 <- data.frame(d.M3)
 ```
 
 
 ### Human Data
 ```{r}
-d.raw <- read.csv(here("EMORSA2.csv"))
+d.raw <- read.csv(here("models/EMORSA2.csv"))
 d <- d.raw %>%
   slice(-1:-8) %>%
   select(ResponseId, Status, starts_with("PUtt_"), starts_with("NUtt_")) %>%
@@ -123,7 +125,7 @@ d <- full_join(d, checks) %>%
 
 ## Plots
 ### Positive Utterance, Positive Expression
-```{r fig1, fig.height=3, fig.width=3.5}
+```{r fig1, fig.height=3, fig.width=5.5}
 #---human
 human.PUPE.state <- ggplot(data=d[which(d$condition=="PU_PE" & d$question=="ground truth"),], 
                            aes(x=response))+
@@ -175,13 +177,29 @@ M2.PUPE.soc <- ggplot(data=d.M2, aes(x=good_smile.support.socGoal, weight=good_s
   xlab("Soc Goal") +
   theme(axis.title.y=element_blank())
 
+#---M3
+M3.PUPE.state <- ggplot(data=d.M3, aes(x=good_smile.support.state, y=good_smile.probs))+
+  geom_bar(stat="identity") +
+  xlab("State") +
+  theme(axis.title.y=element_blank())
+
+M3.PUPE.inf <- ggplot(data=d.M3, aes(x=good_smile.support.infGoal, weight=good_smile.probs))+
+  geom_density(fill = "gray") +
+  xlab("Info Goal") +
+  theme(axis.title.y=element_blank())
+
+M3.PUPE.soc <- ggplot(data=d.M3, aes(x=good_smile.support.socGoal, weight=good_smile.probs))+
+  geom_density(fill = "gray") +
+  xlab("Soc Goal") +
+  theme(axis.title.y=element_blank())
+
 # Together PUNE
-PUPE <- (human.PUPE.state | M1.PUPE.state | M2.PUPE.state) /
-  (human.PUPE.inf | M1.PUPE.inf | M2.PUPE.inf) /
-  (human.PUPE.soc | M1.PUPE.soc | M2.PUPE.soc) +
+PUPE <- (human.PUPE.state | M1.PUPE.state | M2.PUPE.state | M3.PUPE.state) /
+  (human.PUPE.inf | M1.PUPE.inf | M2.PUPE.inf | M3.PUPE.inf) /
+  (human.PUPE.soc | M1.PUPE.soc | M2.PUPE.soc | M3.PUPE.soc) +
   plot_annotation(
     title = "Positive Utterance, Positive Expression",
-    subtitle = "                     Human                    M1: Both Communicative         M2: Speech Communicative Only",
+    subtitle = "                     Human                    M1: EmoCom             M2: EmoNotCom                  M3: InferEmoCom",
     theme = theme(plot.title = element_text(hjust=0.5),
                   plot.subtitle = element_text(hjust=0.5))
   )
@@ -189,7 +207,7 @@ PUPE
 ```
 
 ### Negative Utterance, Negative Expression
-```{r fig1, fig.height=3, fig.width=3.5}
+```{r fig1, fig.height=3, fig.width=5.5}
 #---human
 human.NUNE.state <- ggplot(data=d[which(d$condition=="NU_NE" & d$question=="ground truth"),], 
                            aes(x=response))+
@@ -241,13 +259,29 @@ M2.NUNE.soc <- ggplot(data=d.M2, aes(x=bad_frown.support.socGoal, weight=bad_fro
   xlab("Soc Goal") +
   theme(axis.title.y=element_blank())
 
+#---M3
+M3.NUNE.state <- ggplot(data=d.M3, aes(x=bad_frown.support.state, y=bad_frown.probs))+
+  geom_bar(stat="identity") +
+  xlab("State") +
+  theme(axis.title.y=element_blank())
+
+M3.NUNE.inf <- ggplot(data=d.M3, aes(x=bad_frown.support.infGoal, weight=bad_frown.probs))+
+  geom_density(fill = "gray") +
+  xlab("Info Goal") +
+  theme(axis.title.y=element_blank())
+
+M3.NUNE.soc <- ggplot(data=d.M3, aes(x=bad_frown.support.socGoal, weight=bad_frown.probs))+
+  geom_density(fill = "gray") +
+  xlab("Soc Goal") +
+  theme(axis.title.y=element_blank())
+
 # Together PUNE
-NUNE <- (human.NUNE.state | M1.NUNE.state | M2.NUNE.state) /
-  (human.NUNE.inf | M1.NUNE.inf | M2.NUNE.inf) /
-  (human.NUNE.soc | M1.NUNE.soc | M2.NUNE.soc) +
+NUNE <- (human.NUNE.state | M1.NUNE.state | M2.NUNE.state | M3.NUNE.state) /
+  (human.NUNE.inf | M1.NUNE.inf | M2.NUNE.inf | M3.NUNE.inf) /
+  (human.NUNE.soc | M1.NUNE.soc | M2.NUNE.soc | M3.NUNE.soc) +
   plot_annotation(
     title = "Negative Utterance, Negative Expression",
-    subtitle = "                     Human                    M1: Both Communicative         M2: Speech Communicative Only",
+    subtitle = "                     Human                    M1: EmoCom             M2: EmoNotCom                  M3: InferEmoCom",
     theme = theme(plot.title = element_text(hjust=0.5),
                   plot.subtitle = element_text(hjust=0.5))
   )
@@ -255,7 +289,7 @@ NUNE
 ```
 
 ### Positive Utterance, Negative Expression
-```{r fig1, fig.height=3, fig.width=3.5}
+```{r fig1, fig.height=3, fig.width=5.5}
 #---human
 human.PUNE.state <- ggplot(data=d[which(d$condition=="PU_NE" & d$question=="ground truth"),], 
                             aes(x=response))+
@@ -307,13 +341,29 @@ M2.PUNE.soc <- ggplot(data=d.M2, aes(x=good_frown.support.socGoal, weight=good_f
   xlab("Soc Goal") +
   theme(axis.title.y=element_blank())
 
+#---M3
+M3.PUNE.state <- ggplot(data=d.M3, aes(x=good_frown.support.state, y=good_frown.probs))+
+  geom_bar(stat="identity") +
+  xlab("State") +
+  theme(axis.title.y=element_blank())
+
+M3.PUNE.inf <- ggplot(data=d.M3, aes(x=good_frown.support.infGoal, weight=good_frown.probs))+
+  geom_density(fill = "gray") +
+  xlab("Info Goal") +
+  theme(axis.title.y=element_blank())
+
+M3.PUNE.soc <- ggplot(data=d.M3, aes(x=good_frown.support.socGoal, weight=good_frown.probs))+
+  geom_density(fill = "gray") +
+  xlab("Soc Goal") +
+  theme(axis.title.y=element_blank())
+
 # Together PUNE
-PUNE <- (human.PUNE.state | M1.PUNE.state | M2.PUNE.state) /
-        (human.PUNE.inf | M1.PUNE.inf | M2.PUNE.inf) /
-        (human.PUNE.soc | M1.PUNE.soc | M2.PUNE.soc) +
+PUNE <- (human.PUNE.state | M1.PUNE.state | M2.PUNE.state | M3.PUNE.state) /
+        (human.PUNE.inf | M1.PUNE.inf | M2.PUNE.inf | M3.PUNE.inf) /
+        (human.PUNE.soc | M1.PUNE.soc | M2.PUNE.soc | M3.PUNE.soc) +
         plot_annotation(
           title = "Positive Utterance, Negative Expression",
-          subtitle = "                     Human                    M1: Both Communicative         M2: Speech Communicative Only",
+          subtitle = "                     Human                    M1: EmoCom             M2: EmoNotCom                  M3: InferEmoCom",
           theme = theme(plot.title = element_text(hjust=0.5),
                         plot.subtitle = element_text(hjust=0.5))
         )
@@ -321,7 +371,7 @@ PUNE
 ```
 
 ### Negative Utterance, Positive Expression
-```{r fig1, fig.height=3, fig.width=3.5}
+```{r fig1, fig.height=3, fig.width=5.5}
 #---human
 human.NUPE.state <- ggplot(data=d[which(d$condition=="NU_PE" & d$question=="ground truth"),], 
                            aes(x=response))+
@@ -373,13 +423,29 @@ M2.NUPE.soc <- ggplot(data=d.M2, aes(x=bad_smile.support.socGoal, weight=bad_smi
   xlab("Soc Goal") +
   theme(axis.title.y=element_blank())
 
+#---M3
+M3.NUPE.state <- ggplot(data=d.M3, aes(x=bad_smile.support.state, y=bad_smile.probs))+
+  geom_bar(stat="identity") +
+  xlab("State") +
+  theme(axis.title.y=element_blank())
+
+M3.NUPE.inf <- ggplot(data=d.M3, aes(x=bad_smile.support.infGoal, weight=bad_smile.probs))+
+  geom_density(fill = "gray") +
+  xlab("Info Goal") +
+  theme(axis.title.y=element_blank())
+
+M3.NUPE.soc <- ggplot(data=d.M3, aes(x=bad_smile.support.socGoal, weight=bad_smile.probs))+
+  geom_density(fill = "gray") +
+  xlab("Soc Goal") +
+  theme(axis.title.y=element_blank())
+
 # Together PUNE
-NUPE <- (human.NUPE.state | M1.NUPE.state | M2.NUPE.state) /
-  (human.NUPE.inf | M1.NUPE.inf | M2.NUPE.inf) /
-  (human.NUPE.soc | M1.NUPE.soc | M2.NUPE.soc) +
+NUPE <- (human.NUPE.state | M1.NUPE.state | M2.NUPE.state | M3.NUPE.state) /
+  (human.NUPE.inf | M1.NUPE.inf | M2.NUPE.inf | M3.NUPE.inf) /
+  (human.NUPE.soc | M1.NUPE.soc | M2.NUPE.soc | M3.NUPE.soc) +
   plot_annotation(
     title = "Negative Utterance, Positive Expression",
-    subtitle = "                     Human                    M1: Both Communicative         M2: Speech Communicative Only",
+    subtitle = "                     Human                    M1: EmoCom             M2: EmoNotCom                  M3: InferEmoCom",
     theme = theme(plot.title = element_text(hjust=0.5),
                   plot.subtitle = element_text(hjust=0.5))
   )
@@ -388,7 +454,7 @@ NUPE
 ### Put all figures together
 ```{r}
 plots <- list(PUPE, NUNE, PUNE, NUPE)
-pdf("plots.pdf")
+pdf("plots_3models.pdf")
 plots
 dev.off()
 ```
