@@ -145,7 +145,44 @@ var listener1 = cache(function(utterance, emotion) {
   }})
 }, 10000);
 
-_.fromPairs(map(function(row){
-  var listener1Posterior = listener1(row.utterance, row.emotion)
-  return [row.utterance + "_" + row.emotion, listener1Posterior]
-}, df))
+// _.fromPairs(map(function(row){
+//   var listener1Posterior = listener1(row.utterance, row.emotion)
+//   return [row.utterance + "_" + row.emotion, listener1Posterior]
+// }, df))
+
+ map(function(row){
+
+   var listener0Posterior = listener0(row.utterance, row.emotion)
+   var listener1Posterior = listener1(row.utterance, row.emotion)
+   var listener0Support = listener0Posterior.support()
+   var listener1Support = listener1Posterior.support()
+
+   var l1_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x.state,
+         infGoal: x.infGoal,
+         socGoal: x.socGoal,
+         emoComm: x.emoComm,
+         prob: Math.exp(listener1Posterior.score(x))
+       }
+       return y
+     }, listener1Support)
+
+   var l0_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x,
+         prob: Math.exp(listener0Posterior.score(x))
+       }
+       return y
+     }, listener0Support)
+
+     return {
+       l0: l0_df,
+       l1: l1_df
+     }
+
+ }, df)
