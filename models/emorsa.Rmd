@@ -291,6 +291,17 @@ d.socGoal <- d2[d$question=="niceness",] %>%
   facet_grid(exp~utt)
 ```
 
+### analysis
+```{r}
+d2$response <- as.numeric(d2$response)
+state <- lm(response ~ utt * exp, data = d2[d$question=="ground truth",])
+summary(state)
+infGoal <- lm(response ~ utt * exp, data = d2[d$question=="accurate feedback",])
+summary(infGoal)
+socGoal <- lm(response ~ utt * exp, data = d2[d$question=="niceness",])
+summary(socGoal)
+```
+
 ### plot
 ```{r}
 plot <- (d.state | M0.state | M1.state | M2.state | M3.state) /
