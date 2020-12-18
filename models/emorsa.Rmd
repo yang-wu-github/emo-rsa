@@ -18,7 +18,54 @@ library(ggpubr)
 rm(list = ls())
 ```
 
-## Load data
+### Model 0: No Emotion
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M0 <- webppl(
+  program_file = here("models/M0_No_Emo.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M0.l1 <- bind_rows(d.M0$l1) %>%
+  mutate(utterance = fct_relevel(utterance, "good"),
+         emotion = fct_relevel(emotion, "smile"))
+
+# l1: state
+M0.state <- d.M0.l1 %>%
+  group_by(utterance, emotion, state) %>%
+  summarize(expval = sum(prob)) %>%
+  ggplot(., aes( x = state, y = expval))+
+  geom_col(position = position_dodge())+
+  ggtitle("M0: No Emo") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  facet_grid(emotion~utterance)
+
+# l1: infGoal
+M0.infGoal <- d.M0.l1 %>%
+  group_by(utterance, emotion, infGoal) %>%
+  summarize(expval = sum(prob)) %>%
+  ggplot(., aes( x = infGoal, y = expval))+
+  geom_col(position = position_dodge())+
+  ggtitle("M0: No Emo") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  facet_grid(emotion~utterance)
+
+# l1: socGoal
+M0.socGoal <- d.M0.l1 %>%
+  group_by(utterance, emotion, socGoal) %>%
+  summarize(expval = sum(prob)) %>%
+  ggplot(., aes( x = socGoal, y = expval))+
+  geom_col(position = position_dodge())+
+  ggtitle("M0: No Emo") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  facet_grid(emotion~utterance)
+```
+
 ### Model 1: Simple cue integration (both speech and emotion are communicative)
 ```{r}
 df <- expand.grid(
@@ -32,11 +79,6 @@ d.M1 <- webppl(
   data_var = "df"
 )
 
-# l0
-# bind_rows(d.M1$l0) %>%
-#   ggplot(., aes( x= state, y = prob)) +
-#   facet_grid(utterance ~ emotion) +
-#   geom_col()
 d.M1.l1 <- bind_rows(d.M1$l1) %>%
   mutate(utterance = fct_relevel(utterance, "good"),
          emotion = fct_relevel(emotion, "smile"))
@@ -251,11 +293,11 @@ d.socGoal <- d2[d$question=="niceness",] %>%
 
 ### plot
 ```{r}
-plot <- (d.state | M1.state | M2.state | M3.state) /
-        (d.infGoal | M1.infGoal | M2.infGoal | M3.infGoal) / 
-        (d.socGoal | M1.socGoal | M2.socGoal | M3.socGoal)
+plot <- (d.state | M0.state | M1.state | M2.state | M3.state) /
+        (d.infGoal | M0.infGoal | M1.infGoal | M2.infGoal | M3.infGoal) / 
+        (d.socGoal | M0.socGoal | M1.socGoal | M2.socGoal | M3.socGoal)
 
-ggsave(here("models/plots_3models_new.pdf"), width = 12, height = 9)
+ggsave(here("models/plots_4models.pdf"), width = 15, height = 9)
 
 M3.emoComm
 ggsave(here("models/plots_M3_emoComm.pdf"), width = 3, height = 3)
