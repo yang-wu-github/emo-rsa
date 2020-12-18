@@ -15,6 +15,7 @@ library(tidyverse)
 library(langcog)
 library(patchwork)
 library(ggpubr)
+library(lme4)
 rm(list = ls())
 ```
 
@@ -294,11 +295,11 @@ d.socGoal <- d2[d$question=="niceness",] %>%
 ### analysis
 ```{r}
 d2$response <- as.numeric(d2$response)
-state <- lm(response ~ utt * exp, data = d2[d$question=="ground truth",])
+state <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="ground truth",])
 summary(state)
-infGoal <- lm(response ~ utt * exp, data = d2[d$question=="accurate feedback",])
+infGoal <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="accurate feedback",])
 summary(infGoal)
-socGoal <- lm(response ~ utt * exp, data = d2[d$question=="niceness",])
+socGoal <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="niceness",])
 summary(socGoal)
 ```
 
