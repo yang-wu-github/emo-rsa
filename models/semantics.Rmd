@@ -1,0 +1,66 @@
+---
+title: "semantics"
+author: "Yang Wu"
+date: "12/22/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(ggplot2)
+library(tidyverse)
+library(langcog)
+rm(list = ls())
+```
+
+```{r}
+d.raw <- read.csv(here("models/201221EMO-RSA_SEMANTICS_December 22, 2020_17.46.csv"))
+d <- d.raw %>%
+  slice(-1:-9) %>% # remove preview and pilot data
+  select(ResponseId, starts_with("A_F"), starts_with("W_M"), 
+         starts_with("B_F"), starts_with("L_M"), starts_with("Check")) %>%
+  pivot_longer(cols = c(starts_with("A_F"), starts_with("W_M"), 
+                        starts_with("B_F"), starts_with("L_M")), 
+               names_to = "trial", values_to = "response") %>%
+  separate(trial, into=c("race","gender","trial", "state")) %>%
+  rename(id = `ResponseId`) %>%
+  filter(response != "") %>%
+  mutate(response = case_when(response == "Yes" ~ 1,
+                              response == "No" ~ 0))
+
+checks <- d %>%
+  mutate(check_score1 = case_when(Check1 == "H" ~ 1, TRUE ~ 0),
+         check_score2 = case_when(Check2 == "L" ~ 1, TRUE ~ 0),
+         check_score3 = case_when(Check3 == "O" ~ 1, TRUE ~ 0),
+         check_score4 = case_when(Check4 == "U" ~ 1, TRUE ~ 0)) %>%
+  group_by(id) %>%
+  summarize(check_perc_correct = mean(c(check_score1, check_score2, check_score3, check_score4)))
+
+ggplot(checks, aes(check_perc_correct)) +
+  geom_histogram(binwidth=.01) +
+  theme_bw() +
+  xlab("accuracy on check questions") +
+  ylab("number of participants")
+
+# Only include those who got 75% or more check questions correct
+d <- full_join(d, checks) %>%
+  filter(check_perc_correct == 1) %>%
+  filter
+
+semantics <- d %>%
+  group_by(trial, state) %>%
+  multi_boot_standard(col = "response") %>%
+  summarize(ci_lower=round(ci_lower, 4),ci_upper=round(ci_upper, 4), mean=round(mean, 4))
+
+pd <- position_dodge(0.2)
+ggplot(semantics, aes(x = state, y = mean, group = trial, color=trial)) +
+  geom_errorbar(aes(ymin=ci_lower, ymax=ci_upper), width=.1,
+                position=pd) +
+  geom_line(position=pd) +
+  geom_point(aes(shape=trial), position=pd) +
+  scale_color_brewer(palette="Set2") +
+  theme_bw() 
+#ggsave(here("models/semantics_figure.pdf"), width=5, height=3)
+```

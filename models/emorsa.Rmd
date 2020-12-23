@@ -16,6 +16,7 @@ library(langcog)
 library(patchwork)
 library(ggpubr)
 library(lme4)
+library(brms)
 rm(list = ls())
 ```
 
@@ -295,6 +296,20 @@ d.socGoal <- d2[d$question=="niceness",] %>%
 ### analysis
 ```{r}
 d2$response <- as.numeric(d2$response)
+# Bayesian mixed-effects model
+state <- brm(response ~ utt * exp + (1|id), 
+             data = d2[d$question=="ground truth",], 
+             family = cumulative(link = "logit", threshold = "flexible"))
+summary(state)
+infGoal <- brm(response ~ utt * exp + (1|id), 
+               data = d2[d$question=="accurate feedback",],
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(infGoal)
+socGoal <- brm(response ~ utt * exp + (1|id), data = d2[d$question=="niceness",],
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(socGoal)
+
+# linear mixed-effects model
 state <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="ground truth",])
 summary(state)
 infGoal <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="accurate feedback",])
@@ -308,7 +323,6 @@ summary(socGoal)
 plot <- (d.state | M0.state | M1.state | M2.state | M3.state) /
         (d.infGoal | M0.infGoal | M1.infGoal | M2.infGoal | M3.infGoal) / 
         (d.socGoal | M0.socGoal | M1.socGoal | M2.socGoal | M3.socGoal)
-
 ggsave(here("models/plots_4models.pdf"), width = 15, height = 9)
 
 M3.emoComm
