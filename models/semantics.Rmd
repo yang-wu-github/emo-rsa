@@ -31,10 +31,10 @@ d <- d.raw %>%
                               response == "No" ~ 0))
 
 checks <- d %>%
-  mutate(check_score1 = case_when(Check1 == "H" ~ 1, TRUE ~ 0),
-         check_score2 = case_when(Check2 == "L" ~ 1, TRUE ~ 0),
-         check_score3 = case_when(Check3 == "O" ~ 1, TRUE ~ 0),
-         check_score4 = case_when(Check4 == "U" ~ 1, TRUE ~ 0)) %>%
+  mutate(check_score1 = case_when(grepl("H", Check1, ignore.case = TRUE) ~ 1, TRUE ~ 0),
+         check_score2 = case_when(grepl("L", Check2, ignore.case = TRUE) ~ 1, TRUE ~ 0),
+         check_score3 = case_when(grepl("O", Check3, ignore.case = TRUE) ~ 1, TRUE ~ 0),
+         check_score4 = case_when(grepl("U", Check4, ignore.case = TRUE) ~ 1, TRUE ~ 0)) %>%
   group_by(id) %>%
   summarize(check_perc_correct = mean(c(check_score1, check_score2, check_score3, check_score4)))
 
@@ -62,5 +62,5 @@ ggplot(semantics, aes(x = state, y = mean, group = trial, color=trial)) +
   geom_point(aes(shape=trial), position=pd) +
   scale_color_brewer(palette="Set2") +
   theme_bw() 
-#ggsave(here("models/semantics_figure.pdf"), width=5, height=3)
+ggsave(here("models/plot_semantics.pdf"), width=5, height=3)
 ```
