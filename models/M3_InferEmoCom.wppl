@@ -42,12 +42,12 @@ var emotionSemantics = {
 };
 
 var uttMeaning = function(utterance, state){
-  return flip(literalSemantics[utterance][state]);
+  return flip(literalSemantics[utterance][state - 1]);
 };
 ///
 
 var emoMeaning = function(emotions, state){
-  return flip(emotionSemantics[emotions][state]);
+  return flip(emotionSemantics[emotions][state - 1]);
 };
 
 var listener0Utt = cache(function(utterance) {

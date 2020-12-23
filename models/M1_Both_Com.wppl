@@ -25,12 +25,12 @@ var emotionSemantics = {
 };
 
 var uttMeaning = function(utterance, state){
-  return flip(literalSemantics[utterance][state]);
+  return flip(literalSemantics[utterance][state - 1]);
 };
 ///
 
 var emoMeaning = function(emotions, state){
-  return flip(emotionSemantics[emotions][state]);
+  return flip(emotionSemantics[emotions][state - 1]);
 };
 
 var listener0Utt = cache(function(utterance) {
@@ -94,18 +94,18 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
     }
     var speakerUtilityUtt = infGoal * utilitiesUtt.inf +
         socGoal * utilitiesUtt.soc - cost(utterance);
-    
+
     var emotion = uniformDraw(emotions);
 	var L0Emo = listener0Emo(emotion);
-	
+
 	var utilitiesEmo = {
 		inf: L0Emo.score(state),
 		soc: expectation(L0Emo)
 	}
 	var speakerUtilityEmo = infGoal * utilitiesEmo.inf + socGoal * utilitiesEmo.soc
-    
+
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
-    
+
     factor(speakerOptimality * speakerUtility);
 
     return {utterance, emotion};
@@ -131,7 +131,7 @@ var listener1 = cache(function(utterance, emotion) {
   }})
 }, 10000);
 
-// old style: map over utterance x emotion conditions, return object-ified list 
+// old style: map over utterance x emotion conditions, return object-ified list
 // of [condition, distribution] pairs
 
 // _.fromPairs(map(function(row){
@@ -180,5 +180,3 @@ var listener1 = cache(function(utterance, emotion) {
      }
 
  }, df)
-
-

@@ -25,12 +25,12 @@ var emotionSemantics = {
 };
 
 var uttMeaning = function(utterance, state){
-  return flip(literalSemantics[utterance][state]);
+  return flip(literalSemantics[utterance][state - 1]);
 };
 ///
 
 var emoMeaning = function(emotions, state){
-  return flip(emotionSemantics[emotions][state]);
+  return flip(emotionSemantics[emotions][state - 1]);
 };
 
 var listener0Utt = cache(function(utterance) {
@@ -96,13 +96,13 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
     }
     var speakerUtilityUtt = infGoal * utilitiesUtt.inf +
         socGoal * utilitiesUtt.soc - cost(utterance);
-    
+
     var emotion = uniformDraw(emotions);
     var trueEmotion = emoMeaning(emotion, state);
     condition(trueEmotion)
-    
+
     var speakerUtility = speakerUtilityUtt;
-    
+
     factor(speakerOptimality * speakerUtility);
 
     return {utterance, emotion};
