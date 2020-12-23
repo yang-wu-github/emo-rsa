@@ -25,20 +25,20 @@ var emotions = [
 ];
 
 var states = [
-  0,1,2,3
+  1,2,3,4,5,6
 ];
 
 var literalSemantics = {
-  "state": [0, 1, 2, 3],
-  "good": [0.0145,0.1126,0.9893,0.9999],
-  "bad": [0.9999,0.8777,0.1759,0.005],
+  "state": [1, 2, 3, 4, 5, 6],
+  "good": [0.1000, 0.0833, 0.1833, 0.9333, 0.9833, 0.9667],
+  "bad": [0.9500, 0.8667, 0.4000, 0.1228, 0.0833, 0.0667],
 };
 
 
 var emotionSemantics = {
-  "state": [0, 1, 2, 3],
-  "smile": [0.0145,0.1126,0.9893,0.9999],
-  "frown": [0.9999,0.8777,0.1759,0.005],
+  "state": [1, 2, 3, 4, 5, 6],
+  "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
+  "frown": [0.9000, 0.9167, 0.4167, 0.0667, 0.0667, 0.0500],
 };
 
 var uttMeaning = function(utterance, state){
@@ -162,11 +162,44 @@ var listener1 = cache(function(utterance, emotion) {
   }})
 }, 10000);
 
-_.fromPairs(map(function(row){
-  var listener1Posterior = listener1(row.utterance, row.emotion)
-  return [row.utterance + "_" + row.emotion, listener1Posterior]
-}, df))
+// _.fromPairs(map(function(row){
+//   var listener1Posterior = listener1(row.utterance, row.emotion)
+//   return [row.utterance + "_" + row.emotion, listener1Posterior]
+// }, df))
 
-// displayDist(speaker1(1, 0.1, 0.9, false))
-// displayDist(marginalize(listener1("good", "frown"), "emoComm"))
-// displayDist(marginalize(listener1("good", "smile"), "emoComm"))
+ map(function(row){
+
+   var listener0Posterior = listener0(row.utterance, row.emotion)
+   var listener1Posterior = listener1(row.utterance, row.emotion)
+   var listener0Support = listener0Posterior.support()
+   var listener1Support = listener1Posterior.support()
+
+   var l1_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x.state,
+         infGoal: x.infGoal,
+         socGoal: x.socGoal,
+         emoComm: x.emoComm,
+         prob: Math.exp(listener1Posterior.score(x))
+       }
+       return y
+     }, listener1Support)
+
+   var l0_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x,
+         prob: Math.exp(listener0Posterior.score(x))
+       }
+       return y
+     }, listener0Support)
+
+     return {
+       l0: l0_df,
+       l1: l1_df
+     }
+
+ }, df)
