@@ -1,4 +1,21 @@
 ///fold:
+var foreach = function(lst, fn) {
+  var foreach_ = function(i) {
+    if (i < lst.length) {
+      fn(lst[i]);
+      foreach_(i + 1);
+    }
+  };
+  foreach_(0);
+};
+
+var displayDist = function(dist) {
+  foreach(dist.support(), function(x) {
+    // display(x + ", " + Math.exp(dist.score(x)))
+    display(JSON.stringify(x) + ", " + Math.exp(dist.score(x)))
+  })
+}
+
 var utterances = [
   "good", "bad"
 ];
@@ -149,3 +166,7 @@ _.fromPairs(map(function(row){
   var listener1Posterior = listener1(row.utterance, row.emotion)
   return [row.utterance + "_" + row.emotion, listener1Posterior]
 }, df))
+
+// displayDist(speaker1(1, 0.1, 0.9, false))
+// displayDist(marginalize(listener1("good", "frown"), "emoComm"))
+// displayDist(marginalize(listener1("good", "smile"), "emoComm"))
