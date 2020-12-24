@@ -123,7 +123,9 @@ var speaker1 = cache(function(state, infGoal, socGoal, emoComm) {
         inf: L0Emo.score(state),
         soc: expectation(L0Emo)
     }
-    var literalSemanticWeight = Math.log(emotionSemantics[emotion][state])
+    // display(JSON.stringify(utilitiesEmo))
+    // display(JSON.stringify(utilitiesUtt))
+    var literalSemanticWeight = Math.log(emotionSemantics[emotion][state - 1])
 
     var emoCommUtility = infGoal * utilitiesEmo.inf +
         socGoal * utilitiesEmo.soc
@@ -162,11 +164,13 @@ var listener1 = cache(function(utterance, emotion) {
   }})
 }, 10000);
 
+// listener1("good", "smile")
+
 // _.fromPairs(map(function(row){
 //   var listener1Posterior = listener1(row.utterance, row.emotion)
 //   return [row.utterance + "_" + row.emotion, listener1Posterior]
 // }, df))
-
+ //
  map(function(row){
 
    var listener0Posterior = listener0(row.utterance, row.emotion)
