@@ -56,37 +56,33 @@ var cost = function(utterance){
   0
 }
 
-var speaker1 = cache(function(state, infGoal, socGoal) {
+var speaker1 = cache(function(state) {
   Infer({model: function(){
 
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
 
     var utilitiesUtt = L0Utt.score(state);
-    var speakerUtility = infGoal * utilitiesUtt;
-
-    var emotion = uniformDraw(emotions);
+    var speakerUtility = utilitiesUtt;
 
     factor(speakerOptimality * speakerUtility);
 
-    return {utterance, emotion};
+    return {utterance};
   }})
 }, 10000);
 
 var listener1 = cache(function(utterance, emotion) {
   Infer({model: function(){
 
-    var infGoal = categorical({vs: weightBins, ps: infGoalWeights})
-    var socGoal = categorical({vs: weightBins, ps: socGoalWeights})
     var state = uniformDraw(states);
-    var S1 = speaker1(state, infGoal, socGoal);
+    var S1 = speaker1(state);
 
-    observe(S1, {utterance, emotion})
+    observe(S1, {utterance})
 
     return {
       state: state,
-      infGoal: infGoal,
-      socGoal: socGoal
+      infGoal: 1,
+      socGoal: 0
     }
 
   }})
