@@ -17,10 +17,23 @@ var literalSemantics = {
   "bad": [0.9500, 0.8667, 0.4000, 0.1228, 0.0833, 0.0667],
 };
 
+var emotionSemantics = {
+  "state": [1, 2, 3, 4, 5, 6],
+  "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
+  "frown": [0.9000, 0.9167, 0.4167, 0.0667, 0.0667, 0.0500],
+};
+
+
 var uttMeaning = function(utterance, state){
   return flip(literalSemantics[utterance][state - 1]);
 };
 ///
+
+var emoMeaning = function(emotions, state){
+  return flip(emotionSemantics[emotions][state - 1]);
+};
+
+
 
 var listener0Utt = cache(function(utterance) {
   Infer({model: function(){
