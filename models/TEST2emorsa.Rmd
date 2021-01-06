@@ -1,0 +1,664 @@
+---
+title: "emorsa"
+author: "YW"
+date: "11/12/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(rwebppl)
+library(here)
+library(ggplot2)
+library(tidyverse)
+library(langcog)
+library(patchwork)
+library(ggpubr)
+library(lme4)
+library(brms)
+rm(list = ls())
+```
+### Model 00: Utt Info; No Emotion
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M <- webppl(
+  program_file = here("models/TEST2_M00_UttInfNoEmo.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M.l1 <- bind_rows(d.M$l1) %>%
+  mutate(model = "M: UttInfNoEmo")
+
+# l1: state
+M.state <- d.M.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M.infGoal <- d.M.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M.socGoal <- d.M.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 0: No Emotion
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M0 <- webppl(
+  program_file = here("models/M0_No_Emo.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M0.l1 <- bind_rows(d.M0$l1) %>%
+  mutate(model = "M0: NoEmo")
+
+# l1: state
+M0.state <- d.M0.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M0.infGoal <- d.M0.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M0.socGoal <- d.M0.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 1: Simple cue integration (both speech and emotion are communicative)
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M1 <- webppl(
+  program_file = here("models/M1_Both_Com.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M1.l1 <- bind_rows(d.M1$l1) %>%
+  mutate(model = "M1: EmoComm")
+
+# l1: state
+M1.state <- d.M1.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M1.infGoal <- d.M1.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M1.socGoal <- d.M1.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 1a1: Emotional expression is social
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M1a1 <- webppl(
+  program_file = here("models/TEST2_M1a1_UttInf_EmoSoc.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M1a1.l1 <- bind_rows(d.M1a1$l1) %>%
+  mutate(model = "M1a1: UttInfEmoSoc")
+
+# l1: state
+M1a1.state <- d.M1a1.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M1a1.infGoal <- d.M1a1.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M1a1.socGoal <- d.M1a1.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 1a3: Emotional expression is social
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M1a3 <- webppl(
+  program_file = here("models/TEST2_M1a3_Emo_Soc.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.M1a3.l1 <- bind_rows(d.M1a3$l1) %>%
+  mutate(model = "M1a3: EmoSoc")
+
+# l1: state
+M1a3.state <- d.M1a3.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M1a3.infGoal <- d.M1a3.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M1a3.socGoal <- d.M1a3.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+
+### Model 2: Speech is communicative. Emotional expressions always reflect true evaluation
+```{r}
+d.M2 <- webppl(
+  program_file = here("models/M2_Speech_Com.wppl"),
+  data = df,
+  data_var = "df"
+  )
+
+d.M2.l1 <- bind_rows(d.M2$l1) %>%
+  mutate(model = "M2: EmoNotComm")
+
+# l1: state
+M2.state <- d.M2.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M2.infGoal <- d.M2.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M2.socGoal <- d.M2.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 3: Infer whether emo is communicative (true vs balance)
+
+```{r}
+d.M3 <- webppl(
+  program_file = here("models/M3_InferEmoCom.wppl"),
+  data = df,
+  data_var = "df"
+  )
+
+d.M3.l1 <- bind_rows(d.M3$l1) %>%
+  mutate(model = "M3: InferEmoComm")
+
+# l1: state
+M3.state <- d.M3.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: emoComm
+M3.emoComm <- d.M3.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M3.infGoal <- d.M3.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M3.socGoal <- d.M3.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model 3a: Infer whether emo is communicative (true vs social)
+
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.M3a <- webppl(
+  program_file = here("models/M3a_InferEmoCom.wppl"),
+  data = df,
+  data_var = "df"
+  )
+
+d.M3a.l1 <- bind_rows(d.M3a$l1) %>%
+  mutate(model = "M3a: InferEmoTrue/Soc")
+
+# l1: state
+M3a.state <- d.M3a.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: emoComm
+M3a.emoComm <- d.M3a.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+M3a.infGoal <- d.M3a.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+M3a.socGoal <- d.M3a.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Human Data
+```{r}
+d.raw <- read.csv(here("models/EMORSA2.csv"))
+d <- d.raw %>%
+  slice(-1:-8) %>%
+  select(ResponseId, Status, starts_with("PUtt_"), starts_with("NUtt_")) %>%
+  pivot_longer(cols = c(starts_with("PUtt_"), starts_with("NUtt_")), 
+               names_to = "trial", values_to = "response") %>%
+  separate(trial, into=c("utt","exp","race", "gender","question", "random")) %>%
+  rename(id = `ResponseId`, status = `Status`) %>%
+  mutate(question = case_when(question == "feed" ~ "accurate feedback",
+                              question == "nice" ~ "niceness",
+                              question == "taste" ~ "ground truth",
+                              question == "face" ~ "real expression",
+                              question == "state" ~ "real utterance",
+                              question == "check" ~ "check"),
+         question = fct_relevel(question, "ground truth", "accurate feedback", "niceness", "real expression", "real utterance"),
+         condition = case_when(utt == "PUtt" & exp == "PExp" ~ "PU_PE",
+                               utt == "PUtt" & exp == "NExp" ~ "PU_NE",
+                               utt == "NUtt" & exp == "PExp" ~ "NU_PE",
+                               utt == "NUtt" & exp == "NExp" ~ "NU_NE"),
+         condition = fct_relevel(condition, "PU_PE", "PU_NE", "NU_PE", "NU_NE"),
+         response = fct_relevel(response, "1", "2", "3", "4", "5", "6")) %>%
+  filter(response != "") 
+
+checks <- d %>%
+  filter(question == "check") %>%
+  mutate(check_score = case_when(race == "A" & grepl("H", response, ignore.case = TRUE) ~ 1,
+                                 race == "B" & grepl("O", response, ignore.case = TRUE) ~ 1,
+                                 race == "L" & grepl("U", response, ignore.case = TRUE) ~ 1,
+                                 race == "W" & grepl("L", response, ignore.case = TRUE) ~ 1,
+                                 TRUE ~ 0)) %>%
+  group_by(id) %>%
+  summarize(perc_correct = mean(check_score))
+
+ggplot(checks, aes(perc_correct)) +
+  geom_histogram(binwidth=.01) +
+  theme_bw() +
+  xlab("accuracy on check questions") +
+  ylab("number of participants")
+
+# Only include those who got 75% or more check questions correct
+d <- full_join(d, checks) %>%
+  filter(perc_correct > .50) %>%
+  filter
+
+d2 <- d %>%
+  mutate(utt = case_when(utt == "PUtt" ~ "good",
+                         utt == "NUtt" ~ "bad"),
+         exp = case_when(exp == "PExp" ~ "smile",
+                         exp == "NExp" ~ "frown"),
+         utt = fct_relevel(utt, "good"),
+         exp = fct_relevel(exp, "smile"),
+         condition = case_when(condition=="PU_PE" ~ "good smile",
+                               condition=="NU_NE" ~ "bad frown",
+                               condition=="PU_NE" ~ "good frown",
+                               condition=="NU_PE" ~ "bad smile"),
+         condition = factor(condition, levels=c("good smile", "bad frown", "good frown", "bad smile"))) 
+
+```
+## line plots - graded
+### state
+```{r}
+# state: models
+state0 <- rbind(M.state, M0.state, M1.state, M1a1.state, M1a3.state, M2.state, M3a.state, M3.state)
+state <- state0 %>%
+  mutate(condition = paste(utterance, emotion),
+         condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
+  
+pd <- position_dodge(0.2)
+state.plot <- ggplot(state, aes(x = state, y = expval, 
+                                group = condition,
+                                color=condition)) +
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  theme_bw() +
+  ylim(0, 0.5) +
+  theme(legend.position='none')+
+  #ggtitle("Models") +
+  #theme(legend.position='none',
+  #      plot.title = element_text(hjust = 0.5)) +
+  facet_grid(cols = vars(model))
+state.plot
+
+# state: human
+d.state <- d2[d$question=="ground truth",] %>%
+  group_by(condition, response) %>%
+  count() %>%
+  mutate(probability = case_when(condition=="good smile" ~ n/59,
+                           condition=="good frown" ~ n/58,
+                           condition=="bad smile" ~ n/58,
+                           condition=="bad frown" ~ n/58)) 
+h.state.plot <- d.state %>%
+  ggplot(., aes(x = response, y = probability, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 0.5) +
+  xlab("state") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.state.plot
+
+state.total <- state.plot + h.state.plot + plot_layout(ncol=2, widths=c(8,1))
+state.total
+```
+### infGoal
+```{r}
+# models
+infGoal0 <- rbind(M.infGoal, M0.infGoal, M1.infGoal, M1a1.infGoal, M1a3.infGoal, M2.infGoal, M3.infGoal, M3a.infGoal)
+infGoal <- infGoal0 %>%
+  mutate(condition = paste(utterance, emotion),
+         condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
+  
+pd <- position_dodge(0.2)
+infGoal.plot <- ggplot(infGoal, aes(x = infGoal, y = expval, 
+                                group = condition,
+                                color=condition)) +
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  theme_bw() +
+  theme(legend.position='none')+
+  #ylim(0, 0.5) +
+  #ggtitle("Models") +
+  #theme(legend.position='none',
+  #      plot.title = element_text(hjust = 0.5)) +
+  facet_grid(cols = vars(model))
+infGoal.plot
+
+# human
+d.infGoal <- d2[d$question=="accurate feedback",] %>%
+  group_by(condition, response) %>%
+  count() %>%
+  mutate(probability = case_when(condition=="good smile" ~ n/59,
+                           condition=="good frown" ~ n/58,
+                           condition=="bad smile" ~ n/58,
+                           condition=="bad frown" ~ n/58)) 
+  
+h.infGoal.plot <- d.infGoal %>%
+  ggplot(., aes(x = response, y = probability, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 0.5) +
+  xlab("infGoal") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.infGoal.plot
+
+infGoal.total <- infGoal.plot + h.infGoal.plot + plot_layout(ncol=2, widths=c(8,1))
+infGoal.total
+```
+### socGoal
+```{r}
+# models
+socGoal0 <- rbind(M.socGoal, M0.socGoal, M1.socGoal, M1a1.socGoal, M1a3.socGoal, M2.socGoal, M3.socGoal, M3a.socGoal)
+socGoal <- socGoal0 %>%
+  mutate(condition = paste(utterance, emotion),
+         condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
+  
+pd <- position_dodge(0.2)
+socGoal.plot <- ggplot(socGoal, aes(x = socGoal, y = expval, 
+                                group = condition,
+                                color=condition)) +
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  theme_bw() +
+  theme(legend.position='none')+
+  #ylim(0, 0.5) +
+  #ggtitle("Models") +
+  #theme(legend.position='none',
+  #      plot.title = element_text(hjust = 0.5)) +
+  facet_grid(cols = vars(model))
+socGoal.plot
+
+# human
+d.socGoal <- d2[d$question=="niceness",] %>%
+  group_by(condition, response) %>%
+  count() %>%
+  mutate(probability = case_when(condition=="good smile" ~ n/59,
+                           condition=="good frown" ~ n/58,
+                           condition=="bad smile" ~ n/58,
+                           condition=="bad frown" ~ n/58)) 
+  
+h.socGoal.plot <- d.socGoal %>%
+  ggplot(., aes(x = response, y = probability, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 0.5) +
+  xlab("socGoal") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.socGoal.plot
+
+socGoal.total <- socGoal.plot + h.socGoal.plot + plot_layout(ncol=2, widths=c(8,1))
+socGoal.total
+```
+###total
+```{r}
+total <- state.total / infGoal.total / socGoal.total
+ggsave(here("models/TEST2_plots_4models_line_graded_M3a.pdf"), width=15, height=8)
+```
+
+## line plots - averaged
+### state
+```{r}
+model_state_ave <- state %>%
+  mutate(score = state*expval) %>%
+  group_by(model, condition) %>%
+  summarise(mean = mean(score)) 
+human.state.ave <- d.state %>%
+  mutate(score = (as.numeric(response)-1) * probability /7) %>%
+  group_by(condition) %>%
+  summarise(mean=sum(score)) %>%
+  mutate(model = "human (pilot)")
+state_ave <- rbind(data.frame(model_state_ave), data.frame(human.state.ave))
+state_ave$model <- factor(state_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm", "M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+
+state_ave_plot <- ggplot(state_ave, aes(x = model, y = mean, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("state") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+state_ave_plot
+```
+### infGoal
+```{r}
+model_infGoal_ave <- infGoal %>%
+  mutate(score = infGoal*expval) %>%
+  group_by(model, condition) %>%
+  summarise(mean = sum(score)) 
+human.infGoal.ave <- d.infGoal %>%
+  mutate(score = (as.numeric(response)-1) * probability /7) %>%
+  group_by(condition) %>%
+  summarise(mean=sum(score)) %>%
+  mutate(model = "human (pilot)")
+infGoal_ave <- rbind(data.frame(model_infGoal_ave), data.frame(human.infGoal.ave))
+infGoal_ave$model <- factor(infGoal_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc", "M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+
+infGoal_ave_plot <- ggplot(infGoal_ave, aes(x = model, y = mean, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("infGoal") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+infGoal_ave_plot
+```
+### socGoal
+```{r}
+model_socGoal_ave <- socGoal %>%
+  mutate(score = socGoal*expval) %>%
+  group_by(model, condition) %>%
+  summarise(mean = sum(score)) 
+human.socGoal.ave <- d.socGoal %>%
+  mutate(score = (as.numeric(response)-1) * probability /7) %>%
+  group_by(condition) %>%
+  summarise(mean=sum(score)) %>%
+  mutate(model = "human (pilot)")
+socGoal_ave <- rbind(data.frame(model_socGoal_ave), data.frame(human.socGoal.ave))
+socGoal_ave$model <- factor(socGoal_ave$model, levels = c("M: UttInfNoEmo", "M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+
+socGoal_ave_plot <- ggplot(socGoal_ave, aes(x = model, y = mean, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("socGoal") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+socGoal_ave_plot
+```
+### inferEmoComm
+```{r}
+M3_emoComm_ave <- M3.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+M3a_emoComm_ave <- M3a.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+
+M_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M: UttInfNoEmo",
+           mean = NA)
+M0_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M0: NoEmo",
+           mean = NA)
+M1_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M1: EmoComm",
+           mean = 1)
+M1a1_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M1a1: UttInfEmoSoc",
+           mean = 1)
+M1a3_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M1a3: EmoSoc",
+           mean = 1)
+M2_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "M2: EmoNotComm",
+           mean = 0)
+h_emoComm_ave <- M3_emoComm_ave %>%
+  mutate(model= "human (pilot)",
+           mean = NA)
+emoComm_ave <- rbind(M_emoComm_ave,M0_emoComm_ave, M1_emoComm_ave, M1a1_emoComm_ave, M1a3_emoComm_ave, M2_emoComm_ave, M3_emoComm_ave, M3a_emoComm_ave, h_emoComm_ave)
+emoComm_ave <- emoComm_ave %>%
+  mutate(condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")),
+         model = factor(model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm", "M1a1: UttInfEmoSoc", "M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc", "human (pilot)")))
+
+emoComm_ave_plot <- ggplot(emoComm_ave, aes(x = model, y = mean, 
+                                group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("emoComm") +
+  theme_bw() + 
+  #ggtitle("Human") +
+  theme(plot.title = element_text(hjust = 0.5))
+emoComm_ave_plot
+```
+###total
+```{r}
+total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
+total_ave + plot_layout(ncol=1, guides = "collect")
+ggsave(here("models/TEST2_plots_4models_line_averaged_xCondition_groupModel_M3a.pdf"), width=13, height=8)
+```
+
+### analysis
+```{r cache = TRUE}
+d2$response <- as.numeric(d2$response)
+# Bayesian mixed-effects model
+state <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race), 
+             data = d2[d$question=="ground truth",], 
+             family = cumulative(link = "logit", threshold = "flexible"))
+summary(state)
+infGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race), 
+               data = d2[d$question=="accurate feedback",],
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(infGoal)
+socGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+               data = d2[d$question=="niceness",],
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(socGoal)
+
+# socGoal <- brm(response ~ condition + (1 + condition|id) + (1 + condition|race),
+#                data = d2[d$question=="niceness",],
+#                family = cumulative(link = "logit", threshold = "flexible"))
+# summary(socGoal)
+
+# linear mixed-effects model
+state <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="ground truth",])
+summary(state)
+infGoal <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="accurate feedback",])
+summary(infGoal)
+socGoal <- lmer(response ~ utt * exp + (1|id), data = d2[d$question=="niceness",])
+summary(socGoal)
+```

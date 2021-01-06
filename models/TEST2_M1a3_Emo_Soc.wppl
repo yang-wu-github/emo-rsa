@@ -1,0 +1,180 @@
+///fold:
+var utterances = [
+  "good", "bad"
+];
+
+var emotions = [
+  "smile", "frown"
+];
+
+var states = [
+  1,2,3,4,5,6
+];
+
+var literalSemantics = {
+  "state": [1, 2, 3, 4, 5, 6],
+  "good": [0.1000, 0.0833, 0.1833, 0.9333, 0.9833, 0.9667],
+  "bad": [0.9500, 0.8667, 0.4000, 0.1228, 0.0833, 0.0667],
+};
+
+
+var emotionSemantics = {
+  "state": [1, 2, 3, 4, 5, 6],
+  "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
+  "frown": [0.9000, 0.9167, 0.4167, 0.0667, 0.0667, 0.0500],
+};
+
+var uttMeaning = function(utterance, state){
+  return flip(literalSemantics[utterance][state - 1]);
+};
+///
+
+var emoMeaning = function(emotions, state){
+  return flip(emotionSemantics[emotions][state - 1]);
+};
+
+var listener0Utt = cache(function(utterance) {
+  Infer({model: function(){
+    var state = uniformDraw(states);
+    var u = uttMeaning(utterance, state);
+    condition(u);
+    return state;
+  }})
+}, 10000);
+
+var listener0Emo = cache(function(emotion) {
+  Infer({model: function(){
+    var state = uniformDraw(states);
+    var e = emoMeaning(emotion, state);
+    condition(e);
+    return state;
+  }})
+}, 10000);
+
+
+var listener0 = cache(function(utterance, emotion) {
+  Infer({model: function(){
+    var state = uniformDraw(states);
+    var u = uttMeaning(utterance, state);
+    condition(u)
+    var e = emoMeaning(emotion, state);
+    condition(e)
+    //condition(u & e);
+    return state //{"state": state};
+  }})
+}, 10000);
+
+
+
+var speakerOptimality = 4;
+var speakerOptimality2 = 4;
+
+var round = function(x){
+  return Math.round(x * 100) / 100
+}
+
+var weightBins = map(round, _.range(0,1, 0.05))
+var infGoalWeights = repeat(weightBins.length, function(){1})
+var socGoalWeights = repeat(weightBins.length, function(){1})
+
+var cost = function(utterance){
+  0
+}
+
+
+var speaker1 = cache(function(state, infGoal, socGoal) {
+  Infer({model: function(){
+
+    var utterance = uniformDraw(utterances);
+    var L0Utt = listener0Utt(utterance);
+
+    var utilitiesUtt = {
+      inf: L0Utt.score(state), // log P(s | u)
+      soc: expectation(L0Utt) // E[s]
+    }
+    var speakerUtilityUtt = infGoal * utilitiesUtt.inf +
+        socGoal * utilitiesUtt.soc - cost(utterance);
+
+    var emotion = uniformDraw(emotions);
+	var L0Emo = listener0Emo(emotion);
+
+	var utilitiesEmo = expectation(L0Emo)
+	
+	var speakerUtilityEmo = socGoal * utilitiesEmo
+
+    var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
+
+    factor(speakerOptimality * speakerUtility);
+
+    return {utterance, emotion};
+  }})
+}, 10000);
+
+var listener1 = cache(function(utterance, emotion) {
+  Infer({model: function(){
+
+    var infGoal = categorical({vs: weightBins, ps: infGoalWeights})
+    var socGoal = categorical({vs: weightBins, ps: socGoalWeights})
+    var state = uniformDraw(states);
+    var S1 = speaker1(state, infGoal, socGoal);
+
+    observe(S1, {utterance, emotion})
+
+    return {
+      state: state,
+      infGoal: infGoal,
+      socGoal: socGoal
+    }
+
+  }})
+}, 10000);
+
+// old style: map over utterance x emotion conditions, return object-ified list
+// of [condition, distribution] pairs
+
+// _.fromPairs(map(function(row){
+//   var listener1Posterior = listener1(row.utterance, row.emotion)
+//   return [row.utterance + "_" + row.emotion, listener1Posterior]
+// }, df))
+
+// new style: map over utterance x emotion conditions,
+// compute L0 and L1 distributions
+// map over supports of each distribution
+// return object with condition, value, and prob info
+// return list with [condition, [L0, L1]]
+
+ map(function(row){
+
+   var listener0Posterior = listener0(row.utterance, row.emotion)
+   var listener1Posterior = listener1(row.utterance, row.emotion)
+   var listener0Support = listener0Posterior.support()
+   var listener1Support = listener1Posterior.support()
+
+   var l1_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x.state,
+         infGoal: x.infGoal,
+         socGoal: x.socGoal,
+         prob: Math.exp(listener1Posterior.score(x))
+       }
+       return y
+     }, listener1Support)
+
+   var l0_df = map(function(x){
+       var y = {
+         utterance: row.utterance,
+         emotion: row.emotion,
+         state: x,
+         prob: Math.exp(listener0Posterior.score(x))
+       }
+       return y
+     }, listener0Support)
+
+     return {
+       l0: l0_df,
+       l1: l1_df
+     }
+
+ }, df)
