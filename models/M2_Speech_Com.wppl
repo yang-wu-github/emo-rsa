@@ -18,6 +18,10 @@ var literalSemantics = {
 };
 
 
+// "bad": [0.9500, 0.8667, 0.4000, 0.1228, 0.0833, 0.0667],
+// "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
+
+
 var emotionSemantics = {
   "state": [1, 2, 3, 4, 5, 6],
   "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
@@ -30,7 +34,8 @@ var uttMeaning = function(utterance, state){
 ///
 
 var emoMeaning = function(emotions, state){
-  return flip(emotionSemantics[emotions][state - 1]);
+  var literalMeaningWeight = emotionSemantics[emotions][state - 1]
+  return flip(literalMeaningWeight);
 };
 
 var listener0Utt = cache(function(utterance) {
@@ -98,12 +103,19 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
         socGoal * utilitiesUtt.soc - cost(utterance);
 
     var emotion = uniformDraw(emotions);
-    var trueEmotion = emoMeaning(emotion, state);
-    condition(trueEmotion)
+    // var trueEmotion = emoMeaning(emotion, state);
+    // condition(trueEmotion)
+    // condition (flip (x) ) == factor( Math.log(x) )
+    var literalMeaningWeight = emotionSemantics[emotion][state - 1]
+    // P(emo is true | s)
+    var literalEmoUtility = Math.log(literalMeaningWeight)
+    // factor(literalEmoUtility)
 
     var speakerUtility = speakerUtilityUtt;
+    // factor(speakerOptimality * speakerUtility);
 
-    factor(speakerOptimality * speakerUtility);
+    // factor( speakerOptimality * speakerUtility + literalEmoUtility)
+    factor( speakerOptimality * (speakerUtility + literalEmoUtility))
 
     return {utterance, emotion};
   }})
