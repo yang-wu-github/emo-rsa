@@ -117,8 +117,8 @@ var listener1 = cache(function(utterance, emotion) {
 
     return {
       state: state,
-      infGoal: 1,
-      socGoal: 1
+      infGoal: infGoal,
+      socGoal: socGoal
     }
 
   }})
