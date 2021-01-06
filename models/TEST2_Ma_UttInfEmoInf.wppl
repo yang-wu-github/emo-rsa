@@ -31,6 +31,15 @@ var listener0Utt = cache(function(utterance) {
   }})
 }, 10000);
 
+var listener0Emo = cache(function(emotion) {
+  Infer({model: function(){
+    var state = uniformDraw(states);
+    var e = emoMeaning(emotion, state);
+    condition(e);
+    return state;
+  }})
+}, 10000);
+
 var listener0 = cache(function(utterance, emotion) {
   Infer({model: function(){
     var state = uniformDraw(states);
