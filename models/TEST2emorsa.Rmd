@@ -176,7 +176,7 @@ Ma4.socGoal <- d.Ma4.l1 %>%
   group_by(utterance, emotion, socGoal, model) %>%
   summarize(expval = sum(prob)) 
 ```
-### Model a5: UttInfoEmoSoc
+### Model a5: UttInfoEmoTruSoc
 ```{r}
 df <- expand.grid(
   utterance = c("good", "bad"),
@@ -206,6 +206,11 @@ Ma5.infGoal <- d.Ma5.l1 %>%
 Ma5.socGoal <- d.Ma5.l1 %>%
   group_by(utterance, emotion, socGoal, model) %>%
   summarize(expval = sum(prob)) 
+
+# l1: emoComm
+Ma5.emoComm <- d.Ma5.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob))
 ```
 ### Model a6: UttInfoEmoTruBal
 ```{r}
@@ -237,6 +242,11 @@ Ma6.infGoal <- d.Ma6.l1 %>%
 Ma6.socGoal <- d.Ma6.l1 %>%
   group_by(utterance, emotion, socGoal, model) %>%
   summarize(expval = sum(prob)) 
+
+# l1: emoComm
+Ma6.emoComm <- d.Ma6.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob))
 ```
 
 ### Model b0: UttBalEmoNon
@@ -284,7 +294,7 @@ d.Mb1 <- webppl(
   data_var = "df"
 )
 
-d.Mb1.l1 <- bind_rows(d.Mb0$l1) %>%
+d.Mb1.l1 <- bind_rows(d.Mb1$l1) %>%
   mutate(model = "Mb1: UttBalEmoSoc")
 
 # l1: state
@@ -537,7 +547,7 @@ state.plot <- ggplot(state, aes(x = state, y = expval,
   geom_point(position=pd) +
   scale_color_brewer(palette="Dark2") +
   theme_bw() +
-  ylim(0, 0.5) +
+  ylim(0, 1) +
   theme(legend.position='none')+
   #ggtitle("Models") +
   #theme(legend.position='none',
@@ -573,7 +583,7 @@ state.total
 ```{r}
 # models
 infGoal0 <- rbind(Ma0.infGoal, Ma1.infGoal, Ma2.infGoal, Ma3.infGoal, Ma4.infGoal, Ma5.infGoal, Ma6.infGoal, 
-                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal, Mb5.infGoal, Mb6.infGoal, )
+                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal, Mb5.infGoal, Mb6.infGoal)
 infGoal <- infGoal0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -587,7 +597,7 @@ infGoal.plot <- ggplot(infGoal, aes(x = infGoal, y = expval,
   scale_color_brewer(palette="Dark2") +
   theme_bw() +
   theme(legend.position='none')+
-  #ylim(0, 0.5) +
+  ylim(0, 0.3) +
   #ggtitle("Models") +
   #theme(legend.position='none',
   #      plot.title = element_text(hjust = 0.5)) +
@@ -637,7 +647,7 @@ socGoal.plot <- ggplot(socGoal, aes(x = socGoal, y = expval,
   scale_color_brewer(palette="Dark2") +
   theme_bw() +
   theme(legend.position='none')+
-  #ylim(0, 0.5) +
+  ylim(0, 0.3) +
   #ggtitle("Models") +
   #theme(legend.position='none',
   #      plot.title = element_text(hjust = 0.5)) +
@@ -672,7 +682,7 @@ socGoal.total
 ###total
 ```{r}
 total <- state.total / infGoal.total / socGoal.total
-ggsave(here("models/plots_14models_graded.pdf"), width=20, height=8)
+ggsave(here("models/plots_14models_graded.pdf"), width=22, height=8)
 ```
 
 ## line plots - averaged
@@ -686,9 +696,9 @@ human.state.ave <- d.state %>%
   mutate(score = (as.numeric(response)-1) * probability /7) %>%
   group_by(condition) %>%
   summarise(mean=sum(score)) %>%
-  mutate(model = "human (pilot)")
+  mutate(model = "pilot data")
 state_ave <- rbind(data.frame(model_state_ave), data.frame(human.state.ave))
-state_ave$model <- factor(state_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm", "M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+#state_ave$model <- factor(state_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm", "M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
 
 state_ave_plot <- ggplot(state_ave, aes(x = model, y = mean, 
                                 group = condition, color=condition))+
@@ -712,9 +722,9 @@ human.infGoal.ave <- d.infGoal %>%
   mutate(score = (as.numeric(response)-1) * probability /7) %>%
   group_by(condition) %>%
   summarise(mean=sum(score)) %>%
-  mutate(model = "human (pilot)")
+  mutate(model = "pilot data")
 infGoal_ave <- rbind(data.frame(model_infGoal_ave), data.frame(human.infGoal.ave))
-infGoal_ave$model <- factor(infGoal_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc", "M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+#infGoal_ave$model <- factor(infGoal_ave$model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc", "M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
 
 infGoal_ave_plot <- ggplot(infGoal_ave, aes(x = model, y = mean, 
                                 group = condition, color=condition))+
@@ -738,9 +748,9 @@ human.socGoal.ave <- d.socGoal %>%
   mutate(score = (as.numeric(response)-1) * probability /7) %>%
   group_by(condition) %>%
   summarise(mean=sum(score)) %>%
-  mutate(model = "human (pilot)")
+  mutate(model = "pilot data")
 socGoal_ave <- rbind(data.frame(model_socGoal_ave), data.frame(human.socGoal.ave))
-socGoal_ave$model <- factor(socGoal_ave$model, levels = c("M: UttInfNoEmo", "M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
+#socGoal_ave$model <- factor(socGoal_ave$model, levels = c("M: UttInfNoEmo", "M0: NoEmo", "M1: EmoComm","M1a1: UttInfEmoSoc","M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc",  "human (pilot)"))  
 
 socGoal_ave_plot <- ggplot(socGoal_ave, aes(x = model, y = mean, 
                                 group = condition, color=condition))+
@@ -756,14 +766,14 @@ socGoal_ave_plot
 ```
 ### inferEmoComm
 ```{r}
-M3_emoComm_ave <- M3.emoComm %>%
+Ma5_emoComm_ave <- Ma5.emoComm %>%
   mutate(condition = paste(utterance, emotion),
          emoComm = case_when(emoComm=="FALSE" ~ 0,
                              emoComm=="TRUE" ~ 1),
          score = emoComm * expval) %>%
   group_by(condition, model) %>%
   summarise(mean=sum(score))
-M3a_emoComm_ave <- M3a.emoComm %>%
+Ma6_emoComm_ave <- Ma6.emoComm %>%
   mutate(condition = paste(utterance, emotion),
          emoComm = case_when(emoComm=="FALSE" ~ 0,
                              emoComm=="TRUE" ~ 1),
@@ -771,31 +781,49 @@ M3a_emoComm_ave <- M3a.emoComm %>%
   group_by(condition, model) %>%
   summarise(mean=sum(score))
 
-M_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M: UttInfNoEmo",
-           mean = NA)
-M0_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M0: NoEmo",
-           mean = NA)
-M1_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M1: EmoComm",
-           mean = 1)
-M1a1_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M1a1: UttInfEmoSoc",
-           mean = 1)
-M1a3_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M1a3: EmoSoc",
-           mean = 1)
-M2_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "M2: EmoNotComm",
-           mean = 0)
-h_emoComm_ave <- M3_emoComm_ave %>%
-  mutate(model= "human (pilot)",
-           mean = NA)
-emoComm_ave <- rbind(M_emoComm_ave,M0_emoComm_ave, M1_emoComm_ave, M1a1_emoComm_ave, M1a3_emoComm_ave, M2_emoComm_ave, M3_emoComm_ave, M3a_emoComm_ave, h_emoComm_ave)
+Mb5_emoComm_ave <- Mb5.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+Mb6_emoComm_ave <- Mb6.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+
+Ma0_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Ma0: UttInfEmoNon", mean = NA)
+Ma1_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Ma1: UttInfEmoSoc", mean = NA)
+Ma2_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Ma2: UttInfEmoBal", mean = NA)
+Ma3_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Ma3: UttInfEmoTru", mean = NA)
+Ma4_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Ma4: UttInfEmoInf", mean = NA)
+Mb0_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Mb0: UttBalEmoNon", mean = NA)
+Mb1_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Mb1: UttBalEmoSoc", mean = NA)
+Mb2_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Mb2: UttBalEmoBal", mean = NA)
+Mb3_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Mb3: UttBalEmoTru", mean = NA)
+Mb4_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "Mb4: UttBalEmoInf", mean = NA)
+h_emoComm_ave <- Ma5_emoComm_ave %>%
+  mutate(model= "pilot data", mean = NA)
+emoComm_ave <- rbind(Ma0_emoComm_ave,Ma1_emoComm_ave, Ma2_emoComm_ave, 
+                     Ma3_emoComm_ave, Ma4_emoComm_ave, Ma5_emoComm_ave, Ma6_emoComm_ave, 
+                     Mb0_emoComm_ave,Mb1_emoComm_ave, Mb2_emoComm_ave, 
+                     Mb3_emoComm_ave, Mb4_emoComm_ave, Mb5_emoComm_ave, Mb6_emoComm_ave, h_emoComm_ave)
 emoComm_ave <- emoComm_ave %>%
-  mutate(condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")),
-         model = factor(model, levels = c("M: UttInfNoEmo","M0: NoEmo", "M1: EmoComm", "M1a1: UttInfEmoSoc", "M1a3: EmoSoc", "M2: EmoNotComm", "M3: InferEmoComm", "M3a: InferEmoTrue/Soc", "human (pilot)")))
+  mutate(condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
 
 emoComm_ave_plot <- ggplot(emoComm_ave, aes(x = model, y = mean, 
                                 group = condition, color=condition))+
@@ -813,7 +841,7 @@ emoComm_ave_plot
 ```{r}
 total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
 total_ave + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/TEST2_plots_4models_line_averaged_xCondition_groupModel_M3a.pdf"), width=13, height=8)
+ggsave(here("models/plots_14models_averaged.pdf"), width=13, height=8)
 ```
 
 ### analysis
