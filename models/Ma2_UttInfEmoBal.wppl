@@ -88,14 +88,17 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
 
-    var utilitiesUtt = L0Utt.score(state)
-    var speakerUtilityUtt = utilitiesUtt;
-
+    var utilitiesUtt = L0Utt.score(state); 
+    var speakerUtilityUtt = utilitiesUtt
+    
     var emotion = uniformDraw(emotions);
 	var L0Emo = listener0Emo(emotion);
 
-	var utilitiesEmo = expectation(L0Emo)
-	var speakerUtilityEmo = utilitiesEmo
+	var utilitiesEmo = {
+		inf: L0Emo.score(state),
+		soc: expectation(L0Emo)
+	}
+	var speakerUtilityEmo = infGoal * utilitiesEmo.inf + socGoal * utilitiesEmo.soc
 
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
 
@@ -117,8 +120,8 @@ var listener1 = cache(function(utterance, emotion) {
 
     return {
       state: state,
-      infGoal: 1,
-      socGoal: 0
+      infGoal: infGoal,
+      socGoal: socGoal
     }
 
   }})

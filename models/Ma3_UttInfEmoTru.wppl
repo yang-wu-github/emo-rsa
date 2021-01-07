@@ -17,7 +17,6 @@ var literalSemantics = {
   "bad": [0.9500, 0.8667, 0.4000, 0.1228, 0.0833, 0.0667],
 };
 
-
 var emotionSemantics = {
   "state": [1, 2, 3, 4, 5, 6],
   "smile": [0.1000, 0.0500, 0.3000, 0.9167, 0.9833, 0.9667],
@@ -30,7 +29,8 @@ var uttMeaning = function(utterance, state){
 ///
 
 var emoMeaning = function(emotions, state){
-  return flip(emotionSemantics[emotions][state - 1]);
+  var literalMeaningWeight = emotionSemantics[emotions][state - 1]
+  return flip(literalMeaningWeight);
 };
 
 var listener0Utt = cache(function(utterance) {
@@ -60,11 +60,14 @@ var listener0 = cache(function(utterance, emotion) {
     var e = emoMeaning(emotion, state);
     condition(e)
     //condition(u & e);
-    return state //{"state": state};
+    return state;
   }})
 }, 10000);
 
-
+//_.fromPairs(map(function(row){
+//  var listener0Posterior = listener0(row.utterance, row.emotion)
+//  return [row.utterance + "_" + row.emotion, listener0Posterior]
+//}, df))
 
 var speakerOptimality = 4;
 var speakerOptimality2 = 4;
@@ -81,25 +84,24 @@ var cost = function(utterance){
   0
 }
 
-
 var speaker1 = cache(function(state, infGoal, socGoal) {
   Infer({model: function(){
 
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
-
-    var utilitiesUtt = L0Utt.score(state)
-    var speakerUtilityUtt = utilitiesUtt;
+    var speakerUtilityUtt = L0Utt.score(state);
 
     var emotion = uniformDraw(emotions);
-	var L0Emo = listener0Emo(emotion);
+    var literalMeaningWeight = emotionSemantics[emotion][state - 1]
+    // P(emo is true | s)
+    var literalEmoUtility = Math.log(literalMeaningWeight)
+    // factor(literalEmoUtility)
 
-	var utilitiesEmo = expectation(L0Emo)
-	var speakerUtilityEmo = utilitiesEmo
+    var speakerUtility = speakerUtilityUtt;
+    // factor(speakerOptimality * speakerUtility);
 
-    var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
-
-    factor(speakerOptimality * speakerUtility);
+    // factor( speakerOptimality * speakerUtility + literalEmoUtility)
+    factor( speakerOptimality * (speakerUtility + literalEmoUtility))
 
     return {utterance, emotion};
   }})
@@ -124,19 +126,10 @@ var listener1 = cache(function(utterance, emotion) {
   }})
 }, 10000);
 
-// old style: map over utterance x emotion conditions, return object-ified list
-// of [condition, distribution] pairs
-
 // _.fromPairs(map(function(row){
 //   var listener1Posterior = listener1(row.utterance, row.emotion)
 //   return [row.utterance + "_" + row.emotion, listener1Posterior]
 // }, df))
-
-// new style: map over utterance x emotion conditions,
-// compute L0 and L1 distributions
-// map over supports of each distribution
-// return object with condition, value, and prob info
-// return list with [condition, [L0, L1]]
 
  map(function(row){
 

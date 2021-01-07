@@ -117,23 +117,16 @@ var speaker1 = cache(function(state, infGoal, socGoal, emoComm) {
 
     // EMOTION UTILITY
     var emotion = uniformDraw(emotions);
-    // if (emoComm) {
     var L0Emo = listener0Emo(emotion);
     var utilitiesEmo = {
         inf: L0Emo.score(state),
         soc: expectation(L0Emo)
     }
-    // display(JSON.stringify(utilitiesEmo))
-    // display(JSON.stringify(utilitiesUtt))
     var literalSemanticWeight = Math.log(emotionSemantics[emotion][state - 1])
 
     var emoCommUtility = infGoal * utilitiesEmo.inf +
         socGoal * utilitiesEmo.soc
     var speakerUtilityEmo = emoComm ? emoCommUtility : literalSemanticWeight
-    // } else {
-      // literal semantic weight
-      // var speakerUtilityEmo = Math.log(emotionSemantics[emotion][state])
-    // }
 
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo) / 2;
 
