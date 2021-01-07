@@ -841,7 +841,7 @@ emoComm_ave_plot
 ```{r}
 total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
 total_ave + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/plots_14models_averaged.pdf"), width=13, height=8)
+ggsave(here("models/plots_14models_averaged.pdf"), width=22, height=8)
 ```
 
 ### analysis
