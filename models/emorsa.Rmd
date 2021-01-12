@@ -398,6 +398,33 @@ Mb4.socGoal <- d.Mb4.l1 %>%
   summarize(expval = sum(prob)) 
 ```
 
+### TEST Model b4: UttBalEmoTruInf
+```{r}
+d.Mb42 <- webppl(
+  program_file = here("models/TESTMb4_UttBalEmoTruInf.wppl"),
+  data = df,
+  data_var = "df"
+  )
+
+d.Mb42.l1 <- bind_rows(d.Mb42$l1) %>%
+  mutate(model = "Mb42: UttBalEmoTruInf")
+
+# l1: state
+Mb42.state <- d.Mb42.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+Mb42.infGoal <- d.Mb42.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+Mb42.socGoal <- d.Mb42.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
 ### Model b5: UttBalEmoTruSoc
 
 ```{r}
@@ -534,7 +561,7 @@ d2 <- d %>%
 ```{r}
 # state: models
 state0 <- rbind(Ma0.state, Ma1.state, Ma2.state, Ma3.state, Ma4.state, Ma5.state, Ma6.state,
-                Mb0.state, Mb1.state, Mb2.state, Mb3.state, Mb4.state, Mb5.state, Mb6.state)
+                Mb0.state, Mb1.state, Mb2.state, Mb3.state, Mb4.state, Mb42.state, Mb5.state, Mb6.state)
 state <- state0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -548,16 +575,20 @@ state.plot <- ggplot(state, aes(x = state, y = expval,
   scale_color_brewer(palette="Dark2") +
   theme_bw() +
   ylim(0, 1) +
+  xlab("true state")+
+  ylab("posterior probability mass") +
   theme(legend.position='none')+
-  #ggtitle("Models") +
-  #theme(legend.position='none',
-  #      plot.title = element_text(hjust = 0.5)) +
+  ggtitle("\"How do you think the food tasted?\"") +
+  theme(legend.position='none',
+        plot.title = element_text(hjust = 0.5)) +
   facet_grid(cols = vars(model))
 state.plot
 
 # state: human
 d.state <- d2[d$question=="ground truth",] %>%
   group_by(condition, response) %>%
+  multi_boot_standard(col = "correct")
+  
   count() %>%
   mutate(probability = case_when(condition=="good smile" ~ n/59,
                            condition=="good frown" ~ n/58,
@@ -570,9 +601,10 @@ h.state.plot <- d.state %>%
   geom_point(position=pd) +
   scale_color_brewer(palette="Dark2") +
   ylim(0, 0.5) +
-  xlab("state") +
+  xlab("true state") +
+  ylab("proportion chosen") +
   theme_bw() + 
-  #ggtitle("Human") +
+  ggtitle("Human (pilot data)") +
   theme(plot.title = element_text(hjust = 0.5))
 h.state.plot
 
@@ -583,7 +615,7 @@ state.total
 ```{r}
 # models
 infGoal0 <- rbind(Ma0.infGoal, Ma1.infGoal, Ma2.infGoal, Ma3.infGoal, Ma4.infGoal, Ma5.infGoal, Ma6.infGoal, 
-                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal, Mb5.infGoal, Mb6.infGoal)
+                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal,Mb42.infGoal, Mb5.infGoal, Mb6.infGoal)
 infGoal <- infGoal0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -598,9 +630,11 @@ infGoal.plot <- ggplot(infGoal, aes(x = infGoal, y = expval,
   theme_bw() +
   theme(legend.position='none')+
   ylim(0, 0.3) +
-  #ggtitle("Models") +
-  #theme(legend.position='none',
-  #      plot.title = element_text(hjust = 0.5)) +
+  xlab("informational goal") +
+  ylab("posterior probability mass") +
+  ggtitle("\"How likely do you think the speaker's goal was to provide accurate feedback?\"") +
+  theme(legend.position='none',
+        plot.title = element_text(hjust = 0.5)) +
   facet_grid(cols = vars(model))
 infGoal.plot
 
@@ -620,9 +654,10 @@ h.infGoal.plot <- d.infGoal %>%
   geom_point(position=pd) +
   scale_color_brewer(palette="Dark2") +
   ylim(0, 0.5) +
-  xlab("infGoal") +
+  xlab("informational goal") +
+  ylab("proportion chosen") +
   theme_bw() + 
-  #ggtitle("Human") +
+  ggtitle("Human (pilot data)") +
   theme(plot.title = element_text(hjust = 0.5))
 h.infGoal.plot
 
@@ -633,7 +668,7 @@ infGoal.total
 ```{r}
 # models
 socGoal0 <- rbind(Ma0.socGoal, Ma1.socGoal, Ma2.socGoal, Ma3.socGoal, Ma4.socGoal, Ma5.socGoal, Ma6.socGoal, 
-                  Mb0.socGoal, Mb1.socGoal, Mb2.socGoal, Mb3.socGoal, Mb4.socGoal, Mb5.socGoal, Mb6.socGoal)
+                  Mb0.socGoal, Mb1.socGoal, Mb2.socGoal, Mb3.socGoal, Mb4.socGoal,Mb42.socGoal, Mb5.socGoal, Mb6.socGoal)
 socGoal <- socGoal0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -648,9 +683,11 @@ socGoal.plot <- ggplot(socGoal, aes(x = socGoal, y = expval,
   theme_bw() +
   theme(legend.position='none')+
   ylim(0, 0.3) +
-  #ggtitle("Models") +
-  #theme(legend.position='none',
-  #      plot.title = element_text(hjust = 0.5)) +
+  xlab("social goal") +
+  ylab("posterior probability mass") +
+  ggtitle("\"How likely do you think the speaker's goal was to be nice?\"") +
+  theme(legend.position='none',
+        plot.title = element_text(hjust = 0.5)) +
   facet_grid(cols = vars(model))
 socGoal.plot
 
@@ -670,9 +707,10 @@ h.socGoal.plot <- d.socGoal %>%
   geom_point(position=pd) +
   scale_color_brewer(palette="Dark2") +
   ylim(0, 0.5) +
-  xlab("socGoal") +
+  xlab("social goal") +
+  ylab("proportion chosen") +
   theme_bw() + 
-  #ggtitle("Human") +
+  ggtitle("Human (pilot data)") +
   theme(plot.title = element_text(hjust = 0.5))
 h.socGoal.plot
 
@@ -683,6 +721,11 @@ socGoal.total
 ```{r}
 total <- state.total / infGoal.total / socGoal.total
 ggsave(here("models/plots_14models_graded.pdf"), width=22, height=8)
+
+# without human data
+total <- state.plot + infGoal.plot + socGoal.plot & theme(legend.position = "right") 
+total + plot_layout(ncol=1, guides = "collect")
+ggsave(here("models/TESTplots_14models_graded_predictions.pdf"), width=22, height=8)
 ```
 
 ## line plots - averaged
@@ -839,7 +882,8 @@ emoComm_ave_plot
 ```
 ###total
 ```{r}
-total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
+#total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
+total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot & theme(legend.position = "top") 
 total_ave + plot_layout(ncol=1, guides = "collect")
 ggsave(here("models/plots_14models_averaged.pdf"), width=22, height=8)
 ```
