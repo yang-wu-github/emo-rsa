@@ -94,28 +94,19 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
 
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
-
     var utilitiesUtt = {
       inf: L0Utt.score(state), // log P(s | u)
       soc: expectation(L0Utt) // E[s]
     }
     var speakerUtilityUtt = infGoal * utilitiesUtt.inf +
-        socGoal * utilitiesUtt.soc - cost(utterance);
-
-    var emotion = uniformDraw(emotions);
-    // var trueEmotion = emoMeaning(emotion, state);
-    // condition(trueEmotion)
-    // condition (flip (x) ) == factor( Math.log(x) )
-    var literalMeaningWeight = emotionSemantics[emotion][state - 1]
-    // P(emo is true | s)
-    var literalEmoUtility = Math.log(literalMeaningWeight)
-    // factor(literalEmoUtility)
-
+        socGoal * utilitiesUtt.soc;
     var speakerUtility = speakerUtilityUtt;
-    // factor(speakerOptimality * speakerUtility);
+    
+    var emotion = uniformDraw(emotions);
+    var literalMeaningWeight = emotionSemantics[emotion][state - 1]
+    var literalEmoUtility = Math.log(literalMeaningWeight);
 
-    // factor( speakerOptimality * speakerUtility + literalEmoUtility)
-    factor( speakerOptimality * (speakerUtility + literalEmoUtility))
+    factor( speakerOptimality * (speakerUtility + literalEmoUtility));
 
     return {utterance, emotion};
   }})
