@@ -227,7 +227,7 @@ d.Ma6 <- webppl(
 )
 
 d.Ma6.l1 <- bind_rows(d.Ma6$l1) %>%
-  mutate(model = "Ma6: UttInfEmoTruBal")
+  mutate(model = "Ma6: UttInfEmoTruSoc")
 
 # l1: state
 Ma6.state <- d.Ma6.l1 %>%
@@ -769,7 +769,7 @@ ggsave(here("models/plots_14models_graded.pdf"), width=22, height=8)
 # without human data
 total <- state.plot + infGoal.plot + socGoal.plot & theme(legend.position = "right") 
 total + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/plots_14models_graded_predictions.pdf"), width=22, height=8)
+ggsave(here("models/plots_14models_graded_predictions.pdf"), width=24, height=8)
 ```
 
 ## line plots - averaged
@@ -939,7 +939,7 @@ emoComm_ave_plot <- ggplot(emoComm_ave, aes(x = model, y = mean,
   #ggtitle("Human") +
   theme(plot.title = element_text(hjust = 0.5))
 emoComm_ave_plot
-ggsave(here("models/plots_emocomm.pdf"), width=22, height=3)
+ggsave(here("models/plots_emocomm.pdf"), width=25, height=3)
 
 ```
 ###total
