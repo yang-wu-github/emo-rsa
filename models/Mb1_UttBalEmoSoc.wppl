@@ -96,12 +96,12 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
         socGoal * utilitiesUtt.soc;
 
     var emotion = uniformDraw(emotions);
-	var L0Emo = listener0Emo(emotion);
-	var utilitiesEmo = expectation(L0Emo);
-	var speakerUtilityEmo = utilitiesEmo;
+		var L0Emo = listener0Emo(emotion);
+		var utilitiesEmo = expectation(L0Emo);
+		var speakerUtilityEmo = socGoal * utilitiesEmo;
 
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
-    
+
     factor(speakerOptimality * speakerUtility);
 
     return {utterance, emotion};

@@ -119,7 +119,7 @@ var speaker1 = cache(function(state, infGoal, socGoal, emoComm) {
     var emotion = uniformDraw(emotions);
     var L0Emo = listener0Emo(emotion);
     var utilitiesEmo = expectation(L0Emo);
-    var emoCommUtility = utilitiesEmo;
+    var emoCommUtility = socGoal * utilitiesEmo;
     var literalSemanticWeight = Math.log(emotionSemantics[emotion][state - 1])
     var speakerUtilityEmo = emoComm ? emoCommUtility : literalSemanticWeight
 

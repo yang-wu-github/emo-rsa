@@ -102,7 +102,7 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
 		inf: L0Emo.score(state),
 		soc: expectation(L0Emo)
 	}
-	var speakerUtilityEmo = infGoal * utilitiesEmo.inf + socGoal * utilitiesEmo.soc
+		var speakerUtilityEmo = infGoal * utilitiesEmo.inf + socGoal * utilitiesEmo.soc
 
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
 

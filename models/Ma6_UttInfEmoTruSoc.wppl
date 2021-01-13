@@ -101,7 +101,7 @@ var cost = function(utterance){
   0
 }
 
-var speaker1 = cache(function(state, emoComm) {
+var speaker1 = cache(function(state, emoComm, infGoal, socGoal) {
   Infer({model: function(){
 
     // UTTERANCE UTILITY
@@ -111,13 +111,13 @@ var speaker1 = cache(function(state, emoComm) {
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
     var utilitiesUtt = L0Utt.score(state)
-    var speakerUtilityUtt = utilitiesUtt;
+    var speakerUtilityUtt = infGoal * utilitiesUtt;
 
     // EMOTION UTILITY
     var emotion = uniformDraw(emotions);
     var L0Emo = listener0Emo(emotion);
     var socialUtilityEmo = expectation(L0Emo)
-    var emoCommUtility = socialUtilityEmo
+    var emoCommUtility = socGoal * socialUtilityEmo
     var literalSemanticWeight = Math.log(emotionSemantics[emotion][state - 1])
     var speakerUtilityEmo = emoComm ? emoCommUtility : literalSemanticWeight
 
@@ -133,15 +133,18 @@ var listener1 = cache(function(utterance, emotion) {
   Infer({model: function(){
 
     var state = uniformDraw(states);
+    var infGoal = categorical({vs: weightBins, ps: infGoalWeights})
+    var socGoal = categorical({vs: weightBins, ps: socGoalWeights})
+
     var emoComm = flip();
-    var S1 = speaker1(state, emoComm);
+    var S1 = speaker1(state, emoComm, infGoal, socGoal);
 
     observe(S1, {utterance, emotion})
 
     return {
       state: state,
-      infGoal: 1,
-      socGoal: 0,
+      infGoal: infGoal,
+      socGoal: socGoal,
       emoComm: emoComm
     }
 
