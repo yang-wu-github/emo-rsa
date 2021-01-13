@@ -106,7 +106,7 @@ var speaker1 = cache(function(state, infGoal, socGoal) {
     var literalMeaningWeight = emotionSemantics[emotion][state - 1]
     var literalEmoUtility = Math.log(literalMeaningWeight);
 
-    factor( speakerOptimality * (speakerUtility + literalEmoUtility));
+    factor( speakerOptimality * (speakerUtility + literalEmoUtility)/2);
 
     return {utterance, emotion};
   }})

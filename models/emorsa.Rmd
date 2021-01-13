@@ -176,7 +176,8 @@ Ma4.socGoal <- d.Ma4.l1 %>%
   group_by(utterance, emotion, socGoal, model) %>%
   summarize(expval = sum(prob)) 
 ```
-### Model a5: UttInfoEmoTruSoc
+
+### Model a5: UttInfoEmoTruInf
 ```{r}
 df <- expand.grid(
   utterance = c("good", "bad"),
@@ -184,13 +185,13 @@ df <- expand.grid(
 )
 
 d.Ma5 <- webppl(
-  program_file = here("models/Ma5_UttInfEmoTruSoc.wppl"),
+  program_file = here("models/Ma5_UttInfEmoTruInf.wppl"),
   data = df,
   data_var = "df"
 )
 
 d.Ma5.l1 <- bind_rows(d.Ma5$l1) %>%
-  mutate(model = "Ma5: UttInfEmoTruSoc")
+  mutate(model = "Ma5: UttInfEmoTruInf")
 
 # l1: state
 Ma5.state <- d.Ma5.l1 %>%
@@ -212,7 +213,7 @@ Ma5.emoComm <- d.Ma5.l1 %>%
   group_by(utterance, emotion, emoComm, model) %>%
   summarize(expval = sum(prob))
 ```
-### Model a6: UttInfoEmoTruBal
+### Model a6: UttInfoEmoTruSoc
 ```{r}
 df <- expand.grid(
   utterance = c("good", "bad"),
@@ -220,7 +221,7 @@ df <- expand.grid(
 )
 
 d.Ma6 <- webppl(
-  program_file = here("models/Ma6_UttInfEmoTruBal.wppl"),
+  program_file = here("models/Ma6_UttInfEmoTruSoc.wppl"),
   data = df,
   data_var = "df"
 )
@@ -248,6 +249,43 @@ Ma6.emoComm <- d.Ma6.l1 %>%
   group_by(utterance, emotion, emoComm, model) %>%
   summarize(expval = sum(prob))
 ```
+### Model a7: UttInfoEmoTruBal
+```{r}
+df <- expand.grid(
+  utterance = c("good", "bad"),
+  emotion = c("smile", "frown")
+)
+
+d.Ma7 <- webppl(
+  program_file = here("models/Ma7_UttInfEmoTruBal.wppl"),
+  data = df,
+  data_var = "df"
+)
+
+d.Ma7.l1 <- bind_rows(d.Ma7$l1) %>%
+  mutate(model = "Ma7: UttInfEmoTruBal")
+
+# l1: state
+Ma7.state <- d.Ma7.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+Ma7.infGoal <- d.Ma7.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+Ma7.socGoal <- d.Ma7.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: emoComm
+Ma7.emoComm <- d.Ma7.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob))
+```
+
 
 ### Model b0: UttBalEmoNon
 ```{r}
@@ -398,34 +436,7 @@ Mb4.socGoal <- d.Mb4.l1 %>%
   summarize(expval = sum(prob)) 
 ```
 
-### TEST Model b4: UttBalEmoTruInf
-```{r}
-d.Mb42 <- webppl(
-  program_file = here("models/TESTMb4_UttBalEmoTruInf.wppl"),
-  data = df,
-  data_var = "df"
-  )
-
-d.Mb42.l1 <- bind_rows(d.Mb42$l1) %>%
-  mutate(model = "Mb42: UttBalEmoTruInf")
-
-# l1: state
-Mb42.state <- d.Mb42.l1 %>%
-  group_by(utterance, emotion, state, model) %>%
-  summarize(expval = sum(prob)) 
-
-# l1: infGoal
-Mb42.infGoal <- d.Mb42.l1 %>%
-  group_by(utterance, emotion, infGoal, model) %>%
-  summarize(expval = sum(prob)) 
-
-# l1: socGoal
-Mb42.socGoal <- d.Mb42.l1 %>%
-  group_by(utterance, emotion, socGoal, model) %>%
-  summarize(expval = sum(prob)) 
-```
-
-### Model b5: UttBalEmoTruSoc
+### Model b5: UttBalEmoTruInf
 
 ```{r}
 df <- expand.grid(
@@ -434,13 +445,13 @@ df <- expand.grid(
 )
 
 d.Mb5 <- webppl(
-  program_file = here("models/Mb5_UttBalEmoTruSoc.wppl"),
+  program_file = here("models/Mb5_UttBalEmoTruInf.wppl"),
   data = df,
   data_var = "df"
   )
 
 d.Mb5.l1 <- bind_rows(d.Mb5$l1) %>%
-  mutate(model = "Mb5: UttBalEmoTruSoc")
+  mutate(model = "Mb5: UttBalEmoTruInf")
 
 # l1: state
 Mb5.state <- d.Mb5.l1 %>%
@@ -463,17 +474,17 @@ Mb5.socGoal <- d.Mb5.l1 %>%
   summarize(expval = sum(prob)) 
 ```
 
-### Model b6: UttBalEmoTruBal
+### Model b6: UttBalEmoTruSoc
 
 ```{r}
 d.Mb6 <- webppl(
-  program_file = here("models/Mb6_UttBalEmoTruBal.wppl"),
+  program_file = here("models/Mb6_UttBalEmoTruSoc.wppl"),
   data = df,
   data_var = "df"
   )
 
 d.Mb6.l1 <- bind_rows(d.Mb6$l1) %>%
-  mutate(model = "Mb6: UttBalEmoTruBal")
+  mutate(model = "Mb6: UttBalEmoTruSoc")
 
 # l1: state
 Mb6.state <- d.Mb6.l1 %>%
@@ -492,6 +503,39 @@ Mb6.infGoal <- d.Mb6.l1 %>%
 
 # l1: socGoal
 Mb6.socGoal <- d.Mb6.l1 %>%
+  group_by(utterance, emotion, socGoal, model) %>%
+  summarize(expval = sum(prob)) 
+```
+
+### Model b7: UttBalEmoTruBal
+
+```{r}
+d.Mb7 <- webppl(
+  program_file = here("models/Mb7_UttBalEmoTruBal.wppl"),
+  data = df,
+  data_var = "df"
+  )
+
+d.Mb7.l1 <- bind_rows(d.Mb7$l1) %>%
+  mutate(model = "Mb7: UttBalEmoTruBal")
+
+# l1: state
+Mb7.state <- d.Mb7.l1 %>%
+  group_by(utterance, emotion, state, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: emoComm
+Mb7.emoComm <- d.Mb7.l1 %>%
+  group_by(utterance, emotion, emoComm, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: infGoal
+Mb7.infGoal <- d.Mb7.l1 %>%
+  group_by(utterance, emotion, infGoal, model) %>%
+  summarize(expval = sum(prob)) 
+
+# l1: socGoal
+Mb7.socGoal <- d.Mb7.l1 %>%
   group_by(utterance, emotion, socGoal, model) %>%
   summarize(expval = sum(prob)) 
 ```
@@ -560,8 +604,8 @@ d2 <- d %>%
 ### state
 ```{r}
 # state: models
-state0 <- rbind(Ma0.state, Ma1.state, Ma2.state, Ma3.state, Ma4.state, Ma5.state, Ma6.state,
-                Mb0.state, Mb1.state, Mb2.state, Mb3.state, Mb4.state, Mb42.state, Mb5.state, Mb6.state)
+state0 <- rbind(Ma0.state, Ma1.state, Ma2.state, Ma3.state, Ma4.state, Ma5.state, Ma6.state, Ma7.state,
+                Mb0.state, Mb1.state, Mb2.state, Mb3.state, Mb4.state, Mb5.state, Mb6.state, Mb7.state)
 state <- state0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -614,8 +658,8 @@ state.total
 ### infGoal
 ```{r}
 # models
-infGoal0 <- rbind(Ma0.infGoal, Ma1.infGoal, Ma2.infGoal, Ma3.infGoal, Ma4.infGoal, Ma5.infGoal, Ma6.infGoal, 
-                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal,Mb42.infGoal, Mb5.infGoal, Mb6.infGoal)
+infGoal0 <- rbind(Ma0.infGoal, Ma1.infGoal, Ma2.infGoal, Ma3.infGoal, Ma4.infGoal, Ma5.infGoal, Ma6.infGoal, Ma7.infGoal, 
+                  Mb0.infGoal, Mb1.infGoal, Mb2.infGoal, Mb3.infGoal, Mb4.infGoal, Mb5.infGoal, Mb6.infGoal, Mb7.infGoal)
 infGoal <- infGoal0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -667,8 +711,8 @@ infGoal.total
 ### socGoal
 ```{r}
 # models
-socGoal0 <- rbind(Ma0.socGoal, Ma1.socGoal, Ma2.socGoal, Ma3.socGoal, Ma4.socGoal, Ma5.socGoal, Ma6.socGoal, 
-                  Mb0.socGoal, Mb1.socGoal, Mb2.socGoal, Mb3.socGoal, Mb4.socGoal,Mb42.socGoal, Mb5.socGoal, Mb6.socGoal)
+socGoal0 <- rbind(Ma0.socGoal, Ma1.socGoal, Ma2.socGoal, Ma3.socGoal, Ma4.socGoal, Ma5.socGoal, Ma6.socGoal,Ma7.socGoal, 
+                  Mb0.socGoal, Mb1.socGoal, Mb2.socGoal, Mb3.socGoal, Mb4.socGoal, Mb5.socGoal, Mb6.socGoal, Mb7.socGoal)
 socGoal <- socGoal0 %>%
   mutate(condition = paste(utterance, emotion),
          condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
@@ -725,7 +769,7 @@ ggsave(here("models/plots_14models_graded.pdf"), width=22, height=8)
 # without human data
 total <- state.plot + infGoal.plot + socGoal.plot & theme(legend.position = "right") 
 total + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/TESTplots_14models_graded_predictions.pdf"), width=22, height=8)
+ggsave(here("models/plots_14models_graded_predictions.pdf"), width=22, height=8)
 ```
 
 ## line plots - averaged
@@ -824,6 +868,14 @@ Ma6_emoComm_ave <- Ma6.emoComm %>%
   group_by(condition, model) %>%
   summarise(mean=sum(score))
 
+Ma7_emoComm_ave <- Ma7.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+
 Mb5_emoComm_ave <- Mb5.emoComm %>%
   mutate(condition = paste(utterance, emotion),
          emoComm = case_when(emoComm=="FALSE" ~ 0,
@@ -832,6 +884,14 @@ Mb5_emoComm_ave <- Mb5.emoComm %>%
   group_by(condition, model) %>%
   summarise(mean=sum(score))
 Mb6_emoComm_ave <- Mb6.emoComm %>%
+  mutate(condition = paste(utterance, emotion),
+         emoComm = case_when(emoComm=="FALSE" ~ 0,
+                             emoComm=="TRUE" ~ 1),
+         score = emoComm * expval) %>%
+  group_by(condition, model) %>%
+  summarise(mean=sum(score))
+
+Mb7_emoComm_ave <- Mb7.emoComm %>%
   mutate(condition = paste(utterance, emotion),
          emoComm = case_when(emoComm=="FALSE" ~ 0,
                              emoComm=="TRUE" ~ 1),
@@ -861,10 +921,10 @@ Mb4_emoComm_ave <- Ma5_emoComm_ave %>%
   mutate(model= "Mb4: UttBalEmoInf", mean = NA)
 h_emoComm_ave <- Ma5_emoComm_ave %>%
   mutate(model= "pilot data", mean = NA)
-emoComm_ave <- rbind(Ma0_emoComm_ave,Ma1_emoComm_ave, Ma2_emoComm_ave, 
-                     Ma3_emoComm_ave, Ma4_emoComm_ave, Ma5_emoComm_ave, Ma6_emoComm_ave, 
-                     Mb0_emoComm_ave,Mb1_emoComm_ave, Mb2_emoComm_ave, 
-                     Mb3_emoComm_ave, Mb4_emoComm_ave, Mb5_emoComm_ave, Mb6_emoComm_ave, h_emoComm_ave)
+emoComm_ave <- rbind(Ma0_emoComm_ave,Ma1_emoComm_ave, Ma2_emoComm_ave, Ma3_emoComm_ave, 
+                     Ma4_emoComm_ave, Ma5_emoComm_ave, Ma6_emoComm_ave, Ma7_emoComm_ave, 
+                     Mb0_emoComm_ave,Mb1_emoComm_ave, Mb2_emoComm_ave, Mb3_emoComm_ave, 
+                     Mb4_emoComm_ave, Mb5_emoComm_ave, Mb6_emoComm_ave, Mb7_emoComm_ave, h_emoComm_ave)
 emoComm_ave <- emoComm_ave %>%
   mutate(condition = factor(condition, levels = c("good smile", "bad frown", "good frown", "bad smile")))
 
@@ -879,6 +939,8 @@ emoComm_ave_plot <- ggplot(emoComm_ave, aes(x = model, y = mean,
   #ggtitle("Human") +
   theme(plot.title = element_text(hjust = 0.5))
 emoComm_ave_plot
+ggsave(here("models/plots_emocomm.pdf"), width=22, height=3)
+
 ```
 ###total
 ```{r}

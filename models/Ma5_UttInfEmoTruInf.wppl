@@ -121,7 +121,7 @@ var speaker1 = cache(function(state, emoComm) {
     var literalSemanticWeight = Math.log(emotionSemantics[emotion][state - 1])
     var speakerUtilityEmo = emoComm ? emoCommUtility : literalSemanticWeight
 
-    var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo) / 2;
+    var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
 
     factor(speakerOptimality * speakerUtility);
 
