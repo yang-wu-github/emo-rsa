@@ -5,7 +5,7 @@ date: "11/12/2020"
 output: html_document
 editor_options: 
   chunk_output_type: console
----a
+---
 
 ```{r setup, include=FALSE}
 library(rwebppl)
@@ -689,35 +689,14 @@ infGoal.plot <- ggplot(infGoal, aes(x = infGoal, y = expval,
   theme_bw() +
   theme(legend.position='none')+
   ylim(0, 0.3) +
-  xlab("informational goal") +
+  #xlab("informational goal") +
+  scale_x_continuous(name="informational goal", breaks = c(0, 0.4, 0.8)) +
   ylab("posterior probability mass") +
   #ggtitle("\"How likely do you think the speaker's goal was to provide accurate feedback?\"") +
   theme(legend.position='none',
         plot.title = element_text(hjust = 0.5)) +
   facet_grid(cols = vars(model))
 infGoal.plot
-
-# d.infGoal <- d2[d$question=="accurate feedback",] %>%
-#   group_by(condition, response) %>%
-#   count() %>%
-#   mutate(probability = case_when(condition=="good smile" ~ n/59,
-#                            condition=="good frown" ~ n/58,
-#                            condition=="bad smile" ~ n/58,
-#                            condition=="bad frown" ~ n/58)) 
-#   
-# h.infGoal.plot <- d.infGoal %>%
-#   ggplot(., aes(x = response, y = probability, 
-#                                 group = condition, color=condition))+
-#   geom_line(position=pd) +
-#   geom_point(position=pd) +
-#   scale_color_brewer(palette="Dark2") +
-#   ylim(0, 0.5) +
-#   xlab("informational goal") +
-#   ylab("proportion chosen") +
-#   theme_bw() + 
-#   ggtitle("Human (pilot data)") +
-#   theme(plot.title = element_text(hjust = 0.5))
-# h.infGoal.plot
 ```
 
 ### socGoal: models
@@ -739,36 +718,14 @@ socGoal.plot <- ggplot(socGoal, aes(x = socGoal, y = expval,
   theme_bw() +
   theme(legend.position='none')+
   ylim(0, 0.3) +
-  xlab("social goal") +
+  #xlab("social goal") +
+  scale_x_continuous(name="social goal", breaks = c(0, 0.4, 0.8)) +
   ylab("posterior probability mass") +
   #ggtitle("\"How likely do you think the speaker's goal was to be nice?\"") +
   theme(legend.position='none',
         plot.title = element_text(hjust = 0.5)) +
   facet_grid(cols = vars(model))
 socGoal.plot
-
-# # human
-# d.socGoal <- d2[d$question=="niceness",] %>%
-#   group_by(condition, response) %>%
-#   count() %>%
-#   mutate(probability = case_when(condition=="good smile" ~ n/59,
-#                            condition=="good frown" ~ n/58,
-#                            condition=="bad smile" ~ n/58,
-#                            condition=="bad frown" ~ n/58)) 
-#   
-# h.socGoal.plot <- d.socGoal %>%
-#   ggplot(., aes(x = response, y = probability, 
-#                                 group = condition, color=condition))+
-#   geom_line(position=pd) +
-#   geom_point(position=pd) +
-#   scale_color_brewer(palette="Dark2") +
-#   ylim(0, 0.5) +
-#   xlab("social goal") +
-#   ylab("proportion chosen") +
-#   theme_bw() + 
-#   ggtitle("Human (pilot data)") +
-#   theme(plot.title = element_text(hjust = 0.5))
-# h.socGoal.plot
 ```
 ###infGoal & socGoal: human
 ```{r}
