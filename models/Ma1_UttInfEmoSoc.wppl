@@ -82,20 +82,20 @@ var cost = function(utterance){
 }
 
 
-var speaker1 = cache(function(state, infGoal, socGoal) {
+var speaker1 = cache(function(state) {
   Infer({model: function(){
 
     var utterance = uniformDraw(utterances);
     var L0Utt = listener0Utt(utterance);
 
     var utilitiesUtt = L0Utt.score(state)
-    var speakerUtilityUtt = infGoal * utilitiesUtt;
+    var speakerUtilityUtt = utilitiesUtt;
 
     var emotion = uniformDraw(emotions);
 		var L0Emo = listener0Emo(emotion);
 
 		var utilitiesEmo = expectation(L0Emo)
-		var speakerUtilityEmo = socGoal * utilitiesEmo
+		var speakerUtilityEmo = utilitiesEmo
 
     var speakerUtility = (speakerUtilityUtt + speakerUtilityEmo)/2;
 
@@ -117,8 +117,8 @@ var listener1 = cache(function(utterance, emotion) {
 
     return {
       state: state,
-      infGoal: infGoal,
-      socGoal: socGoal
+      infGoal: 1,
+      socGoal: 0
     }
 
   }})

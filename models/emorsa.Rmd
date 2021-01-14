@@ -764,12 +764,12 @@ socGoal.total
 ###total
 ```{r}
 total <- state.total / infGoal.total / socGoal.total
-ggsave(here("models/plots_14models_graded.pdf"), width=22, height=8)
+ggsave(here("models/plots_16models_graded.pdf"), width=22, height=8)
 
 # without human data
 total <- state.plot + infGoal.plot + socGoal.plot & theme(legend.position = "right") 
 total + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/plots_14models_graded_predictions.pdf"), width=24, height=8)
+ggsave(here("models/plots_16models_graded_predictions.pdf"), width=24, height=8)
 ```
 
 ## line plots - averaged
