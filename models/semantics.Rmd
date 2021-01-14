@@ -45,11 +45,14 @@ ggplot(checks, aes(check_perc_correct)) +
   ylab("number of participants")
 
 # Only include those who got 75% or more check questions correct
-d <- full_join(d, checks) %>%
+d2 <- full_join(d, checks) %>%
   filter(check_perc_correct == 1) %>%
-  filter
+  filter %>%
+  select(-Check1, -Check2, -Check3, -Check4, -check_perc_correct)
 
-semantics <- d %>%
+write.csv(d2, here("models/clean_data_semantics.csv"), row.names = FALSE)
+
+semantics <- d2 %>%
   group_by(trial, state) %>%
   multi_boot_standard(col = "response") %>%
   summarize(ci_lower=round(ci_lower, 4),ci_upper=round(ci_upper, 4), mean=round(mean, 4))
