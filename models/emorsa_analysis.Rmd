@@ -1,0 +1,159 @@
+---
+title: "emorsa"
+author: "YW"
+date: "11/12/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(rwebppl)
+library(here)
+library(ggplot2)
+library(tidyverse)
+library(langcog)
+library(patchwork)
+library(ggpubr)
+library(lme4)
+library(brms)
+rm(list = ls())
+```
+### state: human
+```{r}
+d.raw <- read.csv(here("models/201221EMO-RSA_MAIN_STATE_January 13, 2021_15.51.csv"))
+d <- d.raw %>%
+  slice(-1:-2) %>%
+  filter(Consent != "") %>%
+  select(ResponseId, starts_with("PUtt_"), starts_with("NUtt_")) %>%
+  pivot_longer(cols = c(starts_with("PUtt_"), starts_with("NUtt_")), 
+               names_to = "trial", values_to = "response") %>%
+  separate(trial, into=c("utt","exp","race", "gender","question", "random")) %>%
+  rename(id = `ResponseId`) %>%
+  mutate(question = case_when(question == "GT" ~ "true state",
+                              question == "check" ~ "check"),
+         condition = case_when(utt == "PUtt" & exp == "PExp" ~ "PU_PE",
+                               utt == "PUtt" & exp == "NExp" ~ "PU_NE",
+                               utt == "NUtt" & exp == "PExp" ~ "NU_PE",
+                               utt == "NUtt" & exp == "NExp" ~ "NU_NE"),
+         condition = fct_relevel(condition, "PU_PE", "PU_NE", "NU_PE", "NU_NE"),
+         response = fct_relevel(response, "1", "2", "3", "4", "5", "6")) %>%
+  select(-random) %>%
+  filter(response != "") 
+
+checks <- d %>%
+  filter(question == "check") %>%
+  mutate(check_score = case_when(race == "A" & grepl("H", response, ignore.case = TRUE) ~ 1,
+                                 race == "B" & grepl("O", response, ignore.case = TRUE) ~ 1,
+                                 race == "L" & grepl("U", response, ignore.case = TRUE) ~ 1,
+                                 race == "W" & grepl("L", response, ignore.case = TRUE) ~ 1,
+                                 TRUE ~ 0)) %>%
+  group_by(id) %>%
+  summarize(perc_correct = mean(check_score))
+
+ggplot(checks, aes(perc_correct)) +
+  geom_histogram(binwidth=.01) +
+  theme_bw() +
+  xlab("accuracy on check questions") +
+  ylab("number of participants")
+
+# Only include those who got all check questions correct
+d <- full_join(d, checks) %>%
+  filter(perc_correct == 1) %>%
+  filter
+
+d.state <- d %>%
+  filter(question=="true state") %>%
+  mutate(utt = case_when(utt == "PUtt" ~ "good",
+                         utt == "NUtt" ~ "bad"),
+         exp = case_when(exp == "PExp" ~ "smile",
+                         exp == "NExp" ~ "frown"),
+         utt = fct_relevel(utt, "good"),
+         exp = fct_relevel(exp, "smile"),
+         condition = case_when(condition=="PU_PE" ~ "good smile",
+                               condition=="NU_NE" ~ "bad frown",
+                               condition=="PU_NE" ~ "good frown",
+                               condition=="NU_PE" ~ "bad smile"),
+         condition = factor(condition, levels=c("good smile", "bad frown", "good frown", "bad smile")),
+         response = as.numeric(response)) %>%
+  select(-perc_correct)
+```
+###infGoal & socGoal: human
+```{r}
+dGoal.raw <- read.csv(here("models/201221EMO-RSA_MAIN_COMMGOALS_PREREGISTERED_DONOTCHANGE_January 13, 2021_20.41.csv"))
+dGoal <- dGoal.raw %>%
+  slice(-1:-2) %>%
+  filter(Q358 != "", Q129 != "test") %>%
+  select(ResponseId, starts_with("PUtt_"), starts_with("NUtt_")) %>%
+  pivot_longer(cols = c(starts_with("PUtt_"), starts_with("NUtt_")), 
+               names_to = "trial", values_to = "response") %>%
+  separate(trial, into=c("utt","exp","race", "gender","question", "random")) %>%
+  rename(id = `ResponseId`) %>%
+  mutate(question = case_when(question == "feed" ~ "informational goal",
+                              question == "nice" ~ "social goal",
+                              question == "check" ~ "check"),
+         condition = case_when(utt == "PUtt" & exp == "PExp" ~ "PU_PE",
+                               utt == "PUtt" & exp == "NExp" ~ "PU_NE",
+                               utt == "NUtt" & exp == "PExp" ~ "NU_PE",
+                               utt == "NUtt" & exp == "NExp" ~ "NU_NE"),
+         condition = fct_relevel(condition, "PU_PE", "PU_NE", "NU_PE", "NU_NE"),
+         response = fct_relevel(response, "1", "2", "3", "4")) %>%
+  select(-random) %>%
+  filter(response != "") 
+
+checksGoal <- dGoal %>%
+  filter(question == "check") %>%
+  mutate(check_score = case_when(race == "A" & grepl("H", response, ignore.case = TRUE) ~ 1,
+                                 race == "B" & grepl("O", response, ignore.case = TRUE) ~ 1,
+                                 race == "L" & grepl("U", response, ignore.case = TRUE) ~ 1,
+                                 race == "W" & grepl("L", response, ignore.case = TRUE) ~ 1,
+                                 TRUE ~ 0)) %>%
+  group_by(id) %>%
+  summarize(perc_correct = mean(check_score))
+
+ggplot(checksGoal, aes(perc_correct)) +
+  geom_histogram(binwidth=.01) +
+  theme_bw() +
+  xlab("accuracy on check questions") +
+  ylab("number of participants")
+
+# Only include those who got all check questions correct
+dGoal <- full_join(dGoal, checksGoal) %>%
+  filter(perc_correct == 1) %>%
+  filter
+
+dGoal2 <- dGoal %>%
+  filter(question!="check") %>%
+  mutate(utt = case_when(utt == "PUtt" ~ "good",
+                         utt == "NUtt" ~ "bad"),
+         exp = case_when(exp == "PExp" ~ "smile",
+                         exp == "NExp" ~ "frown"),
+         utt = fct_relevel(utt, "good"),
+         exp = fct_relevel(exp, "smile"),
+         condition = case_when(condition=="PU_PE" ~ "good smile",
+                               condition=="NU_NE" ~ "bad frown",
+                               condition=="PU_NE" ~ "good frown",
+                               condition=="NU_PE" ~ "bad smile"),
+         condition = factor(condition, levels=c("good smile", "bad frown", "good frown", "bad smile")),
+         response = as.numeric(response)) %>%
+  select(-perc_correct)
+d.infGoal <- dGoal2[dGoal2$question == "informational goal",]
+d.socGoal <- dGoal2[dGoal2$question == "social goal",]
+```
+
+### analysis
+```{r cache = TRUE}
+# Bayesian mixed-effects model
+state <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+             data = d.state,
+             family = cumulative(link = "logit", threshold = "flexible"))
+summary(state)
+infGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+               data = d.infGoal,
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(infGoal)
+socGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+               data = d.socGoal,
+               family = cumulative(link = "logit", threshold = "flexible"))
+summary(socGoal)
+```

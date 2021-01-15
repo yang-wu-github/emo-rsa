@@ -625,7 +625,7 @@ d2 <- d %>%
   filter(question=="true state") %>%
   select(-perc_correct)
 
-write.csv(d2, here("models/clean_data_true_state.csv"), row.names = FALSE)
+#write.csv(d2, here("models/clean_data_true_state.csv"), row.names = FALSE)
 
 condition <- c('good smile', 'bad frown', 'good frown','good frown')
 response <- as.factor(c(1, 5, 5, 6))
@@ -789,7 +789,7 @@ dGoal2 <- dGoal %>%
   filter(question!="check") %>%
   select(-perc_correct)
 
-write.csv(d2, here("models/clean_data_goals.csv"), row.names = FALSE)
+#write.csv(d2, here("models/clean_data_goals.csv"), row.names = FALSE)
 
 # infGoal: human
 dInf <- dGoal2[dGoal2$question=="informational goal",]
