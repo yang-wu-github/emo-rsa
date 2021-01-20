@@ -142,18 +142,114 @@ d.socGoal <- dGoal2[dGoal2$question == "social goal",]
 ```
 
 ### analysis
+
+
+
 ```{r cache = TRUE}
+contrasts(d.state$utt)  <- contr.sum(2) / 2
+contrasts(d.state$exp)  <- contr.sum(2) / 2
+
 # Bayesian mixed-effects model
-state <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+rs.state <- brm(response ~ utt * exp + 
+               (1 + utt*exp | id) + 
+               (1 + utt*exp | race),
              data = d.state,
-             family = cumulative(link = "logit", threshold = "flexible"))
-summary(state)
-infGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
-               data = d.infGoal,
-               family = cumulative(link = "logit", threshold = "flexible"))
-summary(infGoal)
-socGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+             family = cumulative(link = "logit", 
+                                 threshold = "flexible"),
+             chains = 4, cores = 4, iter = 8000,
+             file = "brm_state_maximal_8k_4chain")
+
+summary(rs.state)
+```
+
+Regression model
+<!--
+
+y ~ b0 + b1*u + b2*e + b3*e*u
+
+u = {-0.5 (bad), 0.5 (good)}
+e = {-0.5 (frown), 0.5 (smile)}
+
+good_smile = b0 + 0.5 * b1 + 0.5 * b2 + 0.25 * b3
+good_frown = b0 + 0.5 * b1 - 0.5 * b2 - 0.25 * b3
+bad_smile = b0 - 0.5 * b1 + 0.5 * b2 - 0.25 * b3
+bad_frown = b0 - 0.5 * b1 - 0.5 * b2 + 0.25 * b3
+
+good_{smile - frown} = b2 + 0.5 * b3
+bad_{smile - frown} =  b2 - 0.5 * b3
+
+smile_{good - bad} = b1 + 0.5 * b3
+frown_{good - bad} = b1 - 0.5 * b3
+
+good_frown - bad_smile = b1 - b2
+-->
+
+```{r}
+h_good_smile_frown = c(
+  h_good_smile_frown = "exp1 + 0.5 * utt1:exp1 = 0"
+)
+
+h_bad_smile_frown = c(
+  h_bad_smile_frown = "exp1 - 0.5 * utt1:exp1 = 0"
+)
+
+h_smile_good_bad = c(
+  h_smile_good_bad = "utt1 + 0.5 * utt1:exp1 = 0"
+)
+
+h_frown_good_bad = c(
+  h_frown_good_bad = "utt1 - 0.5 * utt1:exp1 = 0"
+)
+
+h_goodFrown_badSmile = c(
+  h_goodFrown_badSmile = "utt1 - exp1 = 0"
+)
+
+
+hypothesis(rs.state, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))
+```
+
+
+
+```{r}
+contrasts(d.infGoal$utt)  <- contr.sum(2) / 2
+contrasts(d.infGoal$exp)  <- contr.sum(2) / 2
+
+
+rs.infGoal <- brm(response ~ utt * exp + 
+                    (1 + utt*exp|id) + 
+                    (1 + utt*exp|race),
+                data = d.infGoal,
+               family = cumulative(link = "logit", 
+                                   threshold = "flexible"),
+               chains = 4, cores = 4, iter = 8000,
+               file = "brm_infGoal_maximal_8k_4chain")
+summary(rs.infGoal)
+
+hypothesis(rs.infGoal, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))
+
+```
+
+```{r}
+contrasts(d.socGoal$utt)  <- contr.sum(2) / 2
+contrasts(d.socGoal$exp)  <- contr.sum(2) / 2
+
+
+rs.socGoal <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
                data = d.socGoal,
-               family = cumulative(link = "logit", threshold = "flexible"))
-summary(socGoal)
+              family = cumulative(link = "logit", 
+                                   threshold = "flexible"),
+               chains = 4, cores = 4, iter = 8000,
+               file = "brm_socGoal_maximal_8k_4chain")
+
+
+summary(rs.socGoal)
+
+hypothesis(rs.socGoal, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))
 ```
