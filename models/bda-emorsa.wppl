@@ -33,44 +33,94 @@ var model = function(){
   foreach(emotions, function(emo){
     foreach(utterances, function(utt){
 
+      // // MUNGE DATA
+      // subset data by utt-emo condition
       var state_data = _.map(
         _.filter(df_state, {utt: utt, exp: emo}),
         "response")
 
-      var modelPrediction = Ma0_UttInfEmoNon(utt, emo, parameters)
-      
-      var statePrediction = marginalize(modelPrediction, "state")
+      var socGoal_data = _.map(
+        _.filter(df_goals, {utt: utt, exp: emo, question: "social goal"}),
+        "response")
 
+      var infGoal_data = _.map(
+        _.filter(df_goals, {utt: utt, exp: emo, question: "informational goal"}),
+        "response")
+
+      // // GENERATE MODEL PREDICTIONS
+      // run RSA model
+      var modelPrediction = Ma2_UttInfEmoBal(utt, emo, parameters)
+
+      // marginalize for specific task predictions
+      var statePrediction = marginalize(modelPrediction, "state")
+      var socGoalPrediction = marginalize(modelPrediction, "socGoal")
+      var infGoalPrediction = marginalize(modelPrediction, "infGoal")
+
+      // // OBSERVE DATA
+      // display('state')
+      // display(state_data)
+      // observe state data
       mapData({data: state_data}, function(d){
         var scr = statePrediction.score(d)
         scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
         observe(statePrediction, d)
       })
+      // display('soc goal')
+      //
+      // display(socGoal_data)
 
+      // observe social goal data
+      mapData({data: socGoal_data}, function(d){
+        var scr = socGoalPrediction.score(d)
+        scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+        observe(socGoalPrediction, d)
+      })
+      // display('inf goal')
+      // display(infGoal_data)
+      // observe informational goal data
+      mapData({data: infGoal_data}, function(d){
+        var scr = infGoalPrediction.score(d)
+        scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+        observe(infGoalPrediction, d)
+      })
+
+      // // RECORD PREDICTIONS
+      // record state predictions
       var stateSupport = statePrediction.support()
       foreach(stateSupport, function(s){
-        query.add([utt, emo, s], Math.exp(statePrediction.score(s)))
+        query.add(["state", utt, emo, s], Math.exp(statePrediction.score(s)))
+      })
+
+      // record social goal predictions
+      var socSupport = socGoalPrediction.support()
+      foreach(socSupport, function(sg){
+        query.add(["socGoal", utt, emo, sg], Math.exp(socGoalPrediction.score(sg)))
+      })
+
+      // record informational goal predictions
+      var infSupport = infGoalPrediction.support()
+      foreach(infSupport, function(ig){
+        query.add(["infGoal", utt, emo, ig], Math.exp(infGoalPrediction.score(ig)))
       })
 
     })
   })
 
-  query.add(["parameter", "speakerOptimality", "NA"], speakerOptimality)
+  query.add(["parameter", "speakerOptimality", "NA", "NA"], speakerOptimality)
 
   return query
-
 
 }
 
 
-var totalIterations = 2000, lag =  0;
+var totalIterations = 100, lag =  0;
 var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
 
-var outfile = 'test_bda-emorsa-' +
+var outfile = 'test_bda-Ma2_UttInfEmoBal' +
   totalIterations+ '_burn' + burn +
   '_lag' + lag + '_chain' + chain + '.csv'
 
-var header = "iter,utt,emo,state,val,score"
+var header = "iter,parameter,utt,emo,state,val,score"
 var callback = webpplSampleWriter.streamQueryCSV("bda_results/" + outfile, header);
 
 Infer({model: model,

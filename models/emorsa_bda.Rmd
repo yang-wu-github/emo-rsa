@@ -5,17 +5,51 @@ date: "1/21/2021"
 output: pdf_document
 ---
 
-```{r}
+```{r libaries}
 library(tidyverse)
-library(ggplot2)
 library(tidyboot)
+library(ggplot2)
+library(ggthemes)
+library(knitr)
+library(coda)
+library(viridis)
+theme_set(theme_few())
 ```
 
+```{r helper fns}
+estimate_mode <- function(s) {
+  d <- density(s)
+  return(d$x[which.max(d$y)])
+}
+hpd_upper <- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","upper"])
+}
+hpd_lower <- function(s){
+  m <- HPDinterval(mcmc(s))
+  return(m["var1","lower"])
+}
+```
+
+
 ```{r}
-df_model <- read_csv("bda_results/test_bda-emorsa-2000_burn1000_lag0_chain1.csv")
+df_model <- read_csv("bda_results/test_bda-Ma2_UttInfEmoBal100_burn50_lag0_chain1.csv")
 
 df_model %>%
-  group_by(utt, emo, state) %>%
-  
+  filter(parameter != "parameter") %>%
+  group_by(parameter, utt, emo, state) %>%
+  summarize(
+    MAP = estimate_mode(val),
+    cred_upper = hpd_upper(val),
+    cred_lower = hpd_lower(val)
+  ) -> df_model_summary
+
+ggplot(df_model_summary, aes(x = state, y = MAP, ymin = cred_lower,
+                             ymax = cred_upper))+
+  geom_col(position = position_dodge())+
+  geom_linerange(position = position_dodge())+
+  facet_grid(parameter~utt + emo, scales = 'free')
+
+ggsave("bda_results/Ma2_UttInfEmoBal_100_postPred.pdf", width = 5, height = 4)
 ```
 
