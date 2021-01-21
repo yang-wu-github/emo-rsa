@@ -1,0 +1,105 @@
+ // time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 1
+ var args = process.argv
+ var chain = last(args) // load index as last command line index
+
+
+// HELPER FUNCTIONS
+var df_semantics = dataFrame(csv.read("clean_semantics_params.csv"), ["state", "a","b"])
+var df_goals = dataFrame(csv.read("clean_data_goals.csv"), ["response"])
+var df_state = dataFrame(csv.read("clean_data_true_state.csv"), ["response"])
+
+var states = levels(df_semantics, "state")
+var semObjects = levels(df_semantics, "trial")
+var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
+
+
+var model = function(){
+  // global free parameters
+  var speakerOptimality = uniformDrift({a: 0, b: 20, width: 2})
+
+  // literal meaning parameters
+  // prior is posterior after literal semantics task
+  var literalMeanings = _.fromPairs(map(function(u){
+    var utt_row = _.filter(df_semantics, {trial: u})
+    var utt_emo = semObjDict[utt_row[0].trial]
+    return [utt_emo, _.fromPairs(map(function(s){
+      var utt_state_row = _.filter(utt_row, {state: s})[0]
+      return [s, sample(Beta({a: utt_state_row.a, b: utt_state_row.b})) ]
+    }, states))]
+  }, semObjects))
+
+  var parameters = { speakerOptimality, literalMeanings }
+
+  foreach(emotions, function(emo){
+    foreach(utterances, function(utt){
+
+      var state_data = _.map(
+        _.filter(df_state, {utt: utt, exp: emo}),
+        "response")
+
+      var modelPrediction = Ma0_UttInfEmoNon(utt, emo, parameters)
+      
+      var statePrediction = marginalize(modelPrediction, "state")
+
+      mapData({data: state_data}, function(d){
+        var scr = statePrediction.score(d)
+        scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+        observe(statePrediction, d)
+      })
+
+      var stateSupport = statePrediction.support()
+      foreach(stateSupport, function(s){
+        query.add([utt, emo, s], Math.exp(statePrediction.score(s)))
+      })
+
+    })
+  })
+
+  query.add(["parameter", "speakerOptimality", "NA"], speakerOptimality)
+
+  return query
+
+
+}
+
+
+var totalIterations = 2000, lag =  0;
+var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
+
+var outfile = 'test_bda-emorsa-' +
+  totalIterations+ '_burn' + burn +
+  '_lag' + lag + '_chain' + chain + '.csv'
+
+var header = "iter,utt,emo,state,val,score"
+var callback = webpplSampleWriter.streamQueryCSV("bda_results/" + outfile, header);
+
+Infer({model: model,
+      samples: samples, burn: burn, lag: lag,
+       method: 'incrementalMH',
+       onlyMAP: true,
+       verbose: T,
+       verboseLag: totalIterations / 20,
+       callbacks: [callback]
+     });
+
+"written to " + outfile;
+
+// df_semantics
+
+// var speakerOptimality = uniformDrift({a: 0, b: 20, width: 2})
+//
+// // literal meaning parameters
+// // prior is posterior after literal semantics task
+// var literalMeanings = _.fromPairs(map(function(u){
+//   var utt_row = _.filter(df_semantics, {trial: u})
+//   var utt_emo = semObjDict[utt_row[0].trial]
+//   return [utt_emo, _.fromPairs(map(function(s){
+//     var utt_state_row = _.filter(utt_row, {state: s})[0]
+//     return [s, sample(Beta({a: utt_state_row.a, b: utt_state_row.b})) ]
+//   }, states))]
+// }, semObjects))
+//
+
+
+// display(parameters)
+// displayDist(marginalize(Ma0_UttInfEmoNon("good", "smile", parameters), "state"))

@@ -1,0 +1,21 @@
+---
+title: "emorsa_bda"
+author: "MH Tessler"
+date: "1/21/2021"
+output: pdf_document
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(tidyboot)
+```
+
+```{r}
+df_model <- read_csv("bda_results/test_bda-emorsa-2000_burn1000_lag0_chain1.csv")
+
+df_model %>%
+  group_by(utt, emo, state) %>%
+  
+```
+
