@@ -34,10 +34,13 @@ var modelObj = {
 }
 
 var modelIndices = _.keys(modelObj)
-var modelIndex = chain % modelIndices.length
+var modelIndex = (chain - 1) % modelIndices.length
 display(modelIndex)
 var modelName = modelIndices[modelIndex]
 display(modelName)
+
+var chain_num = Math.ceil(chain / modelIndices.length)
+display(chain_num)
 
 var rsaModel = modelObj[modelName]
 
@@ -130,7 +133,7 @@ var model = function(){
       if (hasState) {
         var stateSupport = statePrediction.support()
         foreach(stateSupport, function(s){
-          query.add([modelName, "state", utt, emo, s], Math.exp(statePrediction.score(s)))
+          query.add([modelName, chain_num, "state", utt, emo, s], Math.exp(statePrediction.score(s)))
         })
       }
 
@@ -139,7 +142,7 @@ var model = function(){
       if (hasSocGoal) {
         var socSupport = socGoalPrediction.support()
         foreach(socSupport, function(sg){
-          query.add([modelName, "socGoal", utt, emo, sg], Math.exp(socGoalPrediction.score(sg)))
+          query.add([modelName, chain_num, "socGoal", utt, emo, sg], Math.exp(socGoalPrediction.score(sg)))
         })
       }
 
@@ -147,39 +150,40 @@ var model = function(){
       if (hasInfGoal) {
         var infSupport = infGoalPrediction.support()
         foreach(infSupport, function(ig){
-          query.add([modelName, "infGoal", utt, emo, ig], Math.exp(infGoalPrediction.score(ig)))
+          query.add([modelName, chain_num, "infGoal", utt, emo, ig], Math.exp(infGoalPrediction.score(ig)))
         })
       }
 
       // record emoComm variable
       if (hasEmoComm) {
         var emoCommPrediction = marginalize(modelPrediction, "emoComm")
-        query.add([modelName, "emoComm", utt, emo, true], Math.exp(emoCommPrediction.score(true)))
+        query.add([modelName, chain_num, "emoComm", utt, emo, true], Math.exp(emoCommPrediction.score(true)))
       }
 
     })
   })
 
-  query.add([modelName, "parameter", "speakerOptimality", "NA", "NA"], speakerOptimality)
+  query.add([modelName, chain_num, "parameter", "speakerOptimality", "NA", "NA"], speakerOptimality)
 
   return query
 
 }
 
 
-var totalIterations = 10, lag =  0;
+var totalIterations = 10000, lag =  1;
 var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
 
 var outfile = 'bda-' + modelName +
   totalIterations+ '_burn' + burn +
-  '_lag' + lag + '_chain' + chain + '.csv'
+  '_lag' + lag + '_chain' + chain_num + '.csv'
 
-var header = "iter,model,parameter,utt,emo,value,prob,score"
+var header = "iter,model,chain,parameter,utt,emo,value,prob,score"
 
 var callback = webpplSampleWriter.streamQueryCSV("bda_results/" + outfile, header);
 
 Infer({model: model,
-      samples: samples, burn: burn, lag: lag,
+      samples: samples,
+      burn: burn, lag: lag,
        method: 'incrementalMH',
        onlyMAP: true,
        verbose: T,
