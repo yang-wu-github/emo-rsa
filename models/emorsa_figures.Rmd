@@ -789,7 +789,7 @@ dGoal2 <- dGoal %>%
   filter(question!="check") %>%
   select(-perc_correct)
 
-#write.csv(d2, here("models/clean_data_goals.csv"), row.names = FALSE)
+#write.csv(dGoal2, here("models/clean_data_goals.csv"), row.names = FALSE)
 
 # infGoal: human
 dInf <- dGoal2[dGoal2$question=="informational goal",]
