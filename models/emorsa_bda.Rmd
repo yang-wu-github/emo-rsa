@@ -29,27 +29,206 @@ hpd_lower <- function(s){
   m <- HPDinterval(mcmc(s))
   return(m["var1","lower"])
 }
+
+count_summary_fn <- function(x) x %>% 
+  summarize(n = n()) %>%
+  mutate(stat = n / sum(n))
+
+mean_ci_funs <- list("ci_lower" = ci_lower, "mean" = mean, "ci_upper" = ci_upper)
 ```
 
+# Load human data
+
+## State
 
 ```{r}
-df_model <- read_csv("bda_results/test_bda-Ma2_UttInfEmoBal100_burn50_lag0_chain1.csv")
+h_state <- read_csv("clean_data_true_state.csv")
 
-df_model %>%
-  filter(parameter != "parameter") %>%
-  group_by(parameter, utt, emo, state) %>%
-  summarize(
-    MAP = estimate_mode(val),
-    cred_upper = hpd_upper(val),
-    cred_lower = hpd_lower(val)
-  ) -> df_model_summary
-
-ggplot(df_model_summary, aes(x = state, y = MAP, ymin = cred_lower,
-                             ymax = cred_upper))+
-  geom_col(position = position_dodge())+
-  geom_linerange(position = position_dodge())+
-  facet_grid(parameter~utt + emo, scales = 'free')
-
-ggsave("bda_results/Ma2_UttInfEmoBal_100_postPred.pdf", width = 5, height = 4)
+h_state_summary <- h_state %>%
+  rename(emo = exp, state = response) %>%
+  group_by(utt, emo, state) %>%
+  tidyboot(summary_function = count_summary_fn,
+          statistics_functions = function(x) x %>%
+          summarise(across(stat, mean_ci_funs, .names = "{.fn}")))
 ```
 
+## Goals
+
+```{r}
+h_goal <- read_csv("clean_data_goals.csv")
+
+h_goal_summary <- h_goal %>%
+  rename(emo = exp) %>%
+  group_by(utt, emo, question, response) %>%
+  tidyboot(summary_function = count_summary_fn,
+           statistics_functions = function(x) x %>%
+            summarise(across(stat, mean_ci_funs, .names = "{.fn}")))
+```
+
+# Load model results
+
+```{r}
+results_path <- "bda_results/"
+
+model_type_utt <- c("a", "b")
+model_type_emo <- 1:7
+
+df.m <- map_dfr(model_type_utt, function(mtu){
+  map_dfr(model_type_emo, function(mte){
+    
+    model.files <- list.files(
+      path = results_path,
+      pattern = paste("bda-M", mtu, mte, sep = "")
+    )
+    
+    map_dfr(model.files, function(model.file){
+     
+    read_csv(paste(results_path, model.file, sep = ""),
+             col_types = cols(
+                      iter = col_double(),
+                      model = col_character(),
+                      chain = col_double(),
+                      parameter = col_character(),
+                      utt = col_character(),
+                      emo = col_character(),
+                      value = col_character(),
+                      prob = col_double(),
+                      score = col_double()
+                    ))
+      
+    })
+  })
+})
+```
+
+
+
+# Speaker optimality parameters
+
+```{r}
+df.m %>%
+  filter(parameter == "parameter") %>%
+  ggplot(., aes(x = prob, fill = factor(chain)))+
+  geom_histogram(position = position_dodge())+
+  facet_wrap(~model)
+```
+# State posterior predictives
+
+```{r}
+df_state <- df.m %>%
+  filter(parameter == "state") %>%
+  mutate(state = as.numeric(value)) %>%
+  select(-value)
+
+df_state_summary <- df_state %>%
+  group_by(model, utt, emo, state) %>%
+  summarize(
+    MAP = estimate_mode(prob),
+    cred_upper = hpd_upper(prob),
+    cred_lower = hpd_lower(prob)
+  )
+
+```
+
+join with human data
+
+```{r}
+md_state <- left_join(
+  df_state_summary, h_state_summary
+)
+```
+
+posterior predictive scatterplot
+
+```{r}
+md_state %>%
+  unite("utt_emo", utt, emo) %>%
+  mutate(
+    mean = ifelse(is.na(mean), 0, mean),
+    ci_lower = ifelse(is.na(ci_lower), 0, ci_lower),
+    ci_upper = ifelse(is.na(ci_upper), 0, ci_upper),
+    state = factor(state),
+  ) %>%
+  ggplot(., aes( x = MAP, xmin = cred_lower, xmax = cred_upper,
+                      y = mean, ymin = ci_lower, ymax = ci_upper, 
+                 shape = utt_emo, color = state))+
+  geom_abline(intercept = 0, slope = 1, alpha = 0.3, linetype = 2)+
+  geom_linerange()+
+  ggstance::geom_linerangeh()+
+  geom_point()+
+  scale_color_viridis(discrete = T)+
+  #xlim(0, 1)+
+  #ylim(0, 1)+
+  coord_fixed()+
+  facet_wrap(~model, nrow = 2)+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1))+
+  scale_x_continuous(limits = c(0, 1), breaks = c(0, 1))+
+  theme(legend.position = 'bottom')+
+  labs(
+    x = "Model Predicted Probability",
+    y = "Human Proportion Selected"
+  )
+
+ggsave(filename = "bda_results/figs/bda_scatters_state.pdf", width = 11, height = 5)
+```
+
+# Goal posterior predictives
+
+```{r}
+df_goal <- df.m %>%
+  filter(parameter %in% c("socGoal", "infGoal")) %>%
+  mutate(rating = as.numeric(value)) %>%
+  select(-value)
+
+df_goal_summary <- df_goal %>%
+  group_by(model, parameter, utt, emo, rating) %>%
+  summarize(
+    MAP = estimate_mode(prob),
+    cred_upper = hpd_upper(prob),
+    cred_lower = hpd_lower(prob)
+  )
+```
+
+
+join with human data
+
+```{r}
+md_goals <- left_join(
+  df_goal_summary %>%
+    mutate(question = factor(parameter, levels = c("infGoal", "socGoal"), 
+                            labels = c("informational goal", "social goal"))),
+  h_goal_summary %>% rename(rating = response)
+)
+```
+
+posterior predictive scatterplot
+
+```{r}
+md_goals %>%
+  unite("utt_emo", utt, emo) %>%
+  mutate(
+    mean = ifelse(is.na(mean), 0, mean),
+    ci_lower = ifelse(is.na(ci_lower), 0, ci_lower),
+    ci_upper = ifelse(is.na(ci_upper), 0, ci_upper),
+    rating = factor(rating),
+  ) %>%
+  ggplot(., aes( x = MAP, xmin = cred_lower, xmax = cred_upper,
+                      y = mean, ymin = ci_lower, ymax = ci_upper, 
+                 shape = utt_emo, color = rating))+
+  geom_abline(intercept = 0, slope = 1, alpha = 0.3, linetype = 2)+
+  geom_linerange()+
+  ggstance::geom_linerangeh()+
+  geom_point()+
+  coord_fixed()+
+  facet_grid(question~model)+
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 1))+
+  scale_x_continuous(limits = c(0, 1), breaks = c(0, 1))+
+  theme(legend.position = 'bottom')+
+  labs(
+    x = "Model Predicted Probability",
+    y = "Human Proportion Selected"
+  )
+
+ggsave(filename = "bda_results/figs/bda_scatters_goal.pdf", 
+       width = 16, height = 4.5)
+```
