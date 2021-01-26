@@ -67,3 +67,19 @@ ggplot(semantics, aes(x = state, y = mean, group = trial, color=trial)) +
   theme_bw() 
 ggsave(here("models/plot_semantics.pdf"), width=5, height=3)
 ```
+
+
+```{r}
+df_sem <- read_csv(here("models/clean_data_semantics.csv"))
+
+df_sem %>%
+  group_by(trial, state) %>%
+  summarize(
+    k = sum(response),
+    n = n(),
+    a = 1 + k,
+    b = 1 + n - k 
+  ) %>%
+  write_csv(., here("models/clean_semantics_params.csv"))
+```
+
