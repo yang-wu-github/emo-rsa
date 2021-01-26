@@ -3,7 +3,9 @@
 
 var args = process.argv
 var chain = last(args) // load index as last command line index
-var stateOnly = args[args.length - 2] == "stateOnly"
+var dataParam = args[args.length - 2]
+var stateOnly = dataParam == "stateOnly"
+display(dataParam)
 display(stateOnly)
 // HELPER FUNCTIONS
 var df_semantics = dataFrame(csv.read("clean_semantics_params.csv"), ["state", "a","b"])
@@ -142,7 +144,7 @@ var model = function(){
 var steps = 50000
 var samples = 10
 
-var outfile = 'ais-' + modelName + '_steps' +
+var outfile = 'ais-' + modelName + '_' + dataParam + '_steps' +
   steps+ '_samples' + samples + '_chain' + chain_num + '.csv'
 
 var resultsOutFile = "results_ais/"
@@ -154,7 +156,7 @@ var weights = map(function(i) {
 
   display(i)
 	 var weight = AIS(model, {samples: 1, steps: steps})
-	 var line_to_write = [modelName, stateOnly, chain_num, steps, i, weight].join(",")
+	 var line_to_write = [modelName, dataParam, chain_num, steps, i, weight].join(",")
  	 webpplCsv.writeLine(line_to_write, fileHandle)
 
 }, _.range(samples))
