@@ -1,0 +1,164 @@
+
+// time webppl ais-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils stateOnly 1
+
+var args = process.argv
+var chain = last(args) // load index as last command line index
+var stateOnly = args[args.length - 2] == "stateOnly"
+display(stateOnly)
+// HELPER FUNCTIONS
+var df_semantics = dataFrame(csv.read("clean_semantics_params.csv"), ["state", "a","b"])
+var df_goals = dataFrame(csv.read("clean_data_goals.csv"), ["response"])
+var df_state = dataFrame(csv.read("clean_data_true_state.csv"), ["response"])
+
+var states = levels(df_semantics, "state")
+var semObjects = levels(df_semantics, "trial")
+var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
+
+var modelObj = {
+  Ma0_UttInfEmoNon,
+  Ma1_UttInfEmoSoc,
+  Ma2_UttInfEmoBal,
+  Ma3_UttInfEmoTru,
+  Ma4_UttInfEmoInf,
+  Ma5_UttInfEmoTruInf,
+  Ma6_UttInfEmoTruSoc,
+  Ma7_UttInfEmoTruBal,
+  Mb0_UttBalEmoNon,
+  Mb1_UttBalEmoSoc,
+  Mb2_UttBalEmoBal,
+  Mb3_UttBalEmoTru,
+  Mb4_UttBalEmoInf,
+  Mb5_UttBalEmoTruInf,
+  Mb6_UttBalEmoTruSoc,
+  Mb7_UttBalEmoTruBal
+}
+
+var modelIndices = _.keys(modelObj)
+var modelIndex = (chain - 1) % modelIndices.length
+display(modelIndex)
+var modelName = modelIndices[modelIndex]
+display(modelName)
+
+var chain_num = Math.ceil(chain / modelIndices.length)
+display(chain_num)
+
+var rsaModel = modelObj[modelName]
+
+var model = function(){
+  // global free parameters
+  var speakerOptimality = uniform({a: 0, b: 20})
+
+  // literal meaning parameters
+  // prior is posterior after literal semantics task
+  var literalMeanings = _.fromPairs(map(function(u){
+    var utt_row = _.filter(df_semantics, {trial: u})
+    var utt_emo = semObjDict[utt_row[0].trial]
+    return [utt_emo, _.fromPairs(map(function(s){
+      var utt_state_row = _.filter(utt_row, {state: s})[0]
+      return [s, sample(Beta({a: utt_state_row.a, b: utt_state_row.b})) ]
+    }, states))]
+  }, semObjects))
+
+  var parameters = { speakerOptimality, literalMeanings }
+
+  foreach(emotions, function(emo){
+    foreach(utterances, function(utt){
+
+      // // MUNGE DATA
+      // subset data by utt-emo condition
+      var state_data = _.map(
+        _.filter(df_state, {utt: utt, exp: emo}),
+        "response")
+
+      var socGoal_data = _.map(
+        _.filter(df_goals, {utt: utt, exp: emo, question: "social goal"}),
+        "response")
+
+      var infGoal_data = _.map(
+        _.filter(df_goals, {utt: utt, exp: emo, question: "informational goal"}),
+        "response")
+
+      // // GENERATE MODEL PREDICTIONS
+      // run RSA model
+      var modelPrediction = rsaModel(utt, emo, parameters)
+      var modelSupport = modelPrediction.support()[0]
+      var hasState = _.keys(modelSupport).indexOf("state") > - 1
+      var hasInfGoal = _.keys(modelSupport).indexOf("infGoal") > - 1
+      var hasSocGoal = _.keys(modelSupport).indexOf("socGoal") > - 1
+      var hasEmoComm = _.keys(modelSupport).indexOf("emoComm") > - 1
+
+      // display('has state = ' + hasState + '. hasInfGoal = ' +hasInfGoal + '. hasSocGoal = ' + hasSocGoal + '. hasEmoComm = ' + hasEmoComm)
+
+      // marginalize for specific task predictions
+      var statePrediction = hasState ? marginalize(modelPrediction, "state") : null
+      var socGoalPrediction = hasSocGoal ? marginalize(modelPrediction, "socGoal") : null
+      var infGoalPrediction = hasInfGoal ? marginalize(modelPrediction, "infGoal"): null
+
+
+
+      // // OBSERVE DATA
+      // display('state')
+      // display(state_data)
+      // observe state data
+      if (hasState) {
+        mapData({data: state_data}, function(d){
+          var scr = statePrediction.score(d)
+          scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+          observe(statePrediction, d)
+        })
+      }
+
+
+			if (!stateOnly) {
+				// display('soc goal')
+				// display(socGoal_data)
+				// observe social goal data
+				if (hasSocGoal) {
+					mapData({data: socGoal_data}, function(d){
+						var scr = socGoalPrediction.score(d)
+						scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+						observe(socGoalPrediction, d)
+					})
+				}
+
+				// display('inf goal')
+				// display(infGoal_data)
+				// observe informational goal data
+				if (hasInfGoal) {
+					mapData({data: infGoal_data}, function(d){
+						var scr = infGoalPrediction.score(d)
+						scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+						observe(infGoalPrediction, d)
+					})
+				}
+
+			}
+
+    })
+  })
+
+}
+
+var steps = 50000
+var samples = 10
+
+var outfile = 'ais-' + modelName + '_steps' +
+  steps+ '_samples' + samples + '_chain' + chain_num + '.csv'
+
+var resultsOutFile = "results_ais/"
+var fileHandle = webpplCsv.openFile(resultsOutFile + outfile)
+var header_to_write = ["model", "stateOnly", "chain", "steps", "iter", "weight"].join(",")
+webpplCsv.writeLine(header_to_write, fileHandle)
+
+var weights = map(function(i) {
+
+  display(i)
+	 var weight = AIS(model, {samples: 1, steps: steps})
+	 var line_to_write = [modelName, stateOnly, chain_num, steps, i, weight].join(",")
+ 	 webpplCsv.writeLine(line_to_write, fileHandle)
+
+}, _.range(samples))
+
+webpplCsv.closeFile(fileHandle)
+
+"written to " + resultsOutFile + outfile;
