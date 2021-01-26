@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+models/bda_results/*
+models/results_ais/*
+brm*.rds
+*Rproj
+*.DS_Store
