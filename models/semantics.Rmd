@@ -28,7 +28,12 @@ d <- d.raw %>%
   rename(id = `ResponseId`) %>%
   filter(response != "") %>%
   mutate(response = case_when(response == "Yes" ~ 1,
-                              response == "No" ~ 0))
+                              response == "No" ~ 0),
+         trial = case_when(trial == "Good" ~ "good",
+                          trial == "Bad" ~ "bad",
+                          trial == "Pos" ~ "smile",
+                          trial == "Neg" ~ "frown"),
+         trial = factor(trial, levels = c("good", "bad", "smile", "frown")))
 
 checks <- d %>%
   mutate(check_score1 = case_when(grepl("H", Check1, ignore.case = TRUE) ~ 1, TRUE ~ 0),
@@ -50,7 +55,7 @@ d2 <- full_join(d, checks) %>%
   filter %>%
   select(-Check1, -Check2, -Check3, -Check4, -check_perc_correct)
 
-write.csv(d2, here("models/clean_data_semantics.csv"), row.names = FALSE)
+#write.csv(d2, here("models/clean_data_semantics.csv"), row.names = FALSE)
 
 semantics <- d2 %>%
   group_by(trial, state) %>%
