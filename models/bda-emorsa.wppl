@@ -180,7 +180,7 @@ var model = function(){
 var totalIterations = 20000, lag =  1;
 var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
 
-var outfile = 'bda-' + modelName + '-goalScale' +
+var outfile = 'bda-' + modelName + '-goalScale-priors2_' +
   totalIterations+ '_burn' + burn +
   '_lag' + lag + '_chain' + chain_num + '.csv'
 
