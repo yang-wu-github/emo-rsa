@@ -17,12 +17,12 @@ var semObjects = levels(df_semantics, "trial")
 var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
 
 var modelObj = {
-  Ma0_UttInfEmoNon,
-  Ma1_UttInfEmoSoc,
+  // Ma0_UttInfEmoNon,
+  // Ma1_UttInfEmoSoc,
   Ma2_UttInfEmoBal,
-  Ma3_UttInfEmoTru,
-  Ma4_UttInfEmoInf,
-  Ma5_UttInfEmoTruInf,
+  // Ma3_UttInfEmoTru,
+  // Ma4_UttInfEmoInf,
+  // Ma5_UttInfEmoTruInf,
   Ma6_UttInfEmoTruSoc,
   Ma7_UttInfEmoTruBal,
   Mb0_UttBalEmoNon,
@@ -49,6 +49,11 @@ var rsaModel = modelObj[modelName]
 var model = function(){
   // global free parameters
   var speakerOptimality = uniform({a: 0, b: 20})
+	var goalExp = uniformDrift({a: 0, b: 10, width: 1})
+  var goalScale = uniformDrift({a: 0, b: 10, width: 1})
+
+  var goalWeightBins = map(function(x){ return Math.pow(x, goalExp)}, weightBins)
+  var scaledGoalWeights = map(function(x){ return x / goalScale }, goalWeightBins)
 
   // literal meaning parameters
   // prior is posterior after literal semantics task
@@ -61,7 +66,7 @@ var model = function(){
     }, states))]
   }, semObjects))
 
-  var parameters = { speakerOptimality, literalMeanings }
+	var parameters = { speakerOptimality, literalMeanings, weightBins: scaledGoalWeights }
 
   foreach(emotions, function(emo){
     foreach(utterances, function(utt){
@@ -141,8 +146,8 @@ var model = function(){
 
 }
 
-var steps = 50000
-var samples = 10
+var steps = 20000
+var samples = 100
 
 var outfile = 'ais-' + modelName + '_' + dataParam + '_steps' +
   steps+ '_samples' + samples + '_chain' + chain_num + '.csv'
