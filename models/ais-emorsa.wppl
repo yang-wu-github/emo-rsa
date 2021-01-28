@@ -110,11 +110,10 @@ var model = function(){
       if (hasState) {
         mapData({data: state_data}, function(d){
           var scr = statePrediction.score(d)
-          scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+          scr == -Infinity ? display(utt + " _ " + emo + " _state " + d + " _sopt " + speakerOptimality + " _exp " + goalExp + " _scale " + goalScale) : null
           observe(statePrediction, d)
         })
       }
-
 
 			if (!stateOnly) {
 				// display('soc goal')
@@ -123,7 +122,7 @@ var model = function(){
 				if (hasSocGoal) {
 					mapData({data: socGoal_data}, function(d){
 						var scr = socGoalPrediction.score(d)
-						scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+						scr == -Infinity ? display(utt + " _ " + emo + " _soc " + d + " _sopt " + speakerOptimality + " _exp " + goalExp + " _scale " + goalScale) : null
 						observe(socGoalPrediction, d)
 					})
 				}
@@ -134,7 +133,7 @@ var model = function(){
 				if (hasInfGoal) {
 					mapData({data: infGoal_data}, function(d){
 						var scr = infGoalPrediction.score(d)
-						scr == -Infinity ? display(utt + " _ " + emo + " _ " + d) : null
+						scr == -Infinity ? display(utt + " _ " + emo + " _inf " + d + " _sopt " + speakerOptimality + " _exp " + goalExp + " _scale " + goalScale) : null
 						observe(infGoalPrediction, d)
 					})
 				}
