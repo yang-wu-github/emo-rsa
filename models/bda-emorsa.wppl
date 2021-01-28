@@ -47,8 +47,8 @@ var rsaModel = modelObj[modelName]
 var model = function(){
   // global free parameters
   var speakerOptimality = uniformDrift({a: 0, b: 20, width: 2})
-  var goalExp = uniformDrift({a: 0, b: 10, width: 1})
-  var goalScale = uniformDrift({a: 0, b: 10, width: 1})
+  var goalExp = uniformDrift({a: 0, b: 5, width: 1})
+  var goalScale = uniformDrift({a: 0, b: 50, width: 2})
 
   var goalWeightBins = map(function(x){ return Math.pow(x, goalExp)}, weightBins)
   var scaledGoalWeights = map(function(x){ return x / goalScale }, goalWeightBins)
