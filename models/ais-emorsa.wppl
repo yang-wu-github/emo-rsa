@@ -149,7 +149,7 @@ var model = function(){
 var steps = 20000
 var samples = 100
 
-var outfile = 'ais-' + modelName + '_' + dataParam + '_steps' +
+var outfile = 'ais-' + modelName + '-goalScale' + '_' + dataParam + '_steps' +
   steps+ '_samples' + samples + '_chain' + chain_num + '.csv'
 
 var resultsOutFile = "results_ais/"
