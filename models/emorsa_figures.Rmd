@@ -884,6 +884,57 @@ ggsave(here("models/plots_16models_graded.pdf"), width=22, height=8)
 # total + plot_layout(ncol=1, guides = "collect")
 # ggsave(here("models/plots_16models_graded_predictions.pdf"), width=24, height=8)
 ```
+# figure for behavioral data only
+```{r}
+h.state.plot <- d.state %>%
+  ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size = 0.25, position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("true state") +
+  ylab("proportion chosen") +
+  theme_bw() + 
+  #ggtitle("Inferences of True State") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.state.plot
+
+h.infGoal.plot <- d.infGoal %>%
+  ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size=0.25, position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("informational goal") +
+  ylab("proportion chosen") +
+  theme_bw() + 
+  #ggtitle("Inferences of Informational Goal") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.infGoal.plot
+
+h.socGoal.plot <- d.socGoal %>%
+  ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
+  geom_line(position=pd) +
+  geom_point(position=pd) +
+  geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size = 0.25, position=pd) +
+  scale_color_brewer(palette="Dark2") +
+  ylim(0, 1) +
+  xlab("social goal") +
+  ylab("proportion chosen") +
+  theme_bw() + 
+  #ggtitle("Inferences of Social Goal") +
+  theme(plot.title = element_text(hjust = 0.5))
+h.socGoal.plot
+
+h.total <- h.state.plot + h.infGoal.plot + h.socGoal.plot & theme(legend.position = "right") 
+h.total + plot_layout(ncol=3, guides = "collect")
+ggsave(here("models/plot_human.pdf"), width=8, height=2)
+```
+
+
+
 
 # ## line plots - averaged
 # ### state
