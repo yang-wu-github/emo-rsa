@@ -256,50 +256,7 @@ d &lt;- full_join(d, checks) %&gt;%
                                condition==&quot;NU_PE&quot; ~ &quot;bad smile&quot;),
          condition = factor(condition, levels=c(&quot;good smile&quot;, &quot;bad frown&quot;, &quot;good frown&quot;, &quot;bad smile&quot;)),
          response = as.numeric(response)) %&gt;%
-  select(-perc_correct)
-
-# #write.csv(d2, here(&quot;models/clean_data_true_state.csv&quot;), row.names = FALSE)
-# 
-# condition &lt;- c('good smile', 'bad frown', 'good frown','good frown')
-# response &lt;- as.factor(c(1, 5, 5, 6))
-# n &lt;- c(0, 0, 0, 0)
-# zeros &lt;- data.frame(condition, response, n)
-# 
-# n_condition &lt;- d2 %&gt;%
-#   group_by(condition) %&gt;%
-#   count() 
-# n_condition
-# 
-# d.state &lt;- d2 %&gt;%
-#   group_by(condition, response) %&gt;%
-#   count() %&gt;%
-#   bind_rows(zeros) %&gt;%
-#   mutate(proportion = case_when(condition==&quot;good smile&quot; ~ n/55,
-#                            condition==&quot;good frown&quot; ~ n/55,
-#                            condition==&quot;bad smile&quot; ~ n/55,
-#                            condition==&quot;bad frown&quot; ~ n/55),
-#          ci_l = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 55)$conf.int[1],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 55)$conf.int[1],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 55)$conf.int[1],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 55)$conf.int[1]),
-#          ci_u = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 55)$conf.int[2],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 55)$conf.int[2],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 55)$conf.int[2],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 55)$conf.int[2]))  
-# 
-# h.state.plot &lt;- d.state %&gt;%
-#   ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
-#   geom_line(position=pd) +
-#   geom_point(position=pd) +
-#   geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size = 0.25, position=pd) +
-#   scale_color_brewer(palette=&quot;Dark2&quot;) +
-#   ylim(0, 1) +
-#   xlab(&quot;true state&quot;) +
-#   ylab(&quot;proportion chosen&quot;) +
-#   theme_bw() + 
-#   ggtitle(&quot;Human Data&quot;) +
-#   theme(plot.title = element_text(hjust = 0.5))
-# h.state.plot</code></pre>
+  select(-perc_correct)</code></pre>
 </div>
 <div id="infgoal-socgoal-human" class="section level3">
 <h3>infGoal &amp; socGoal: human</h3>
@@ -363,628 +320,381 @@ dGoal &lt;- full_join(dGoal, checksGoal) %&gt;%
          response = as.numeric(response)) %&gt;%
   select(-perc_correct)
 d.infGoal &lt;- dGoal2[dGoal2$question == &quot;informational goal&quot;,]
-d.socGoal &lt;- dGoal2[dGoal2$question == &quot;social goal&quot;,]
-#write.csv(d2, here(&quot;models/clean_data_goals.csv&quot;), row.names = FALSE)
-
-## infGoal: human
-# dInf &lt;- dGoal2[dGoal2$question==&quot;informational goal&quot;,]
-# n_conditionInf &lt;- dInf %&gt;%
-#   group_by(condition) %&gt;%
-#   count() 
-# n_conditionInf
-# d.infGoal &lt;- dInf %&gt;%
-#   group_by(condition, response) %&gt;%
-#   count() %&gt;%
-#   mutate(proportion = case_when(condition==&quot;good smile&quot; ~ n/58,
-#                            condition==&quot;good frown&quot; ~ n/59,
-#                            condition==&quot;bad smile&quot; ~ n/58,
-#                            condition==&quot;bad frown&quot; ~ n/60),
-#          ci_l = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 58)$conf.int[1],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 59)$conf.int[1],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 58)$conf.int[1],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 60)$conf.int[1]),
-#          ci_u = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 58)$conf.int[2],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 59)$conf.int[2],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 58)$conf.int[2],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 60)$conf.int[2]))  
-# h.infGoal.plot &lt;- d.infGoal %&gt;%
-#   ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
-#   geom_line(position=pd) +
-#   geom_point(position=pd) +
-#   geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size=0.25, position=pd) +
-#   scale_color_brewer(palette=&quot;Dark2&quot;) +
-#   ylim(0, 1) +
-#   xlab(&quot;informational goal&quot;) +
-#   ylab(&quot;proportion chosen&quot;) +
-#   theme_bw() + 
-#   #ggtitle(&quot;Human Data&quot;) +
-#   theme(plot.title = element_text(hjust = 0.5))
-# h.infGoal.plot
-
-# # socGoal: human
-# dSoc &lt;- dGoal2[dGoal2$question==&quot;social goal&quot;,]
-# n_conditionSoc &lt;- dSoc %&gt;%
-#   group_by(condition) %&gt;%
-#   count()
-# n_conditionSoc
-# 
-# d.socGoal &lt;- dSoc %&gt;%
-#   group_by(condition, response) %&gt;%
-#   count() %&gt;%
-#   mutate(proportion = case_when(condition==&quot;good smile&quot; ~ n/58,
-#                            condition==&quot;good frown&quot; ~ n/58,
-#                            condition==&quot;bad smile&quot; ~ n/58,
-#                            condition==&quot;bad frown&quot; ~ n/59),
-#          ci_l = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 58)$conf.int[1],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 58)$conf.int[1],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 58)$conf.int[1],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 59)$conf.int[1]),
-#          ci_u = case_when(condition==&quot;good smile&quot; ~ prop.test(n, 58)$conf.int[2],
-#                            condition==&quot;good frown&quot; ~ prop.test(n, 58)$conf.int[2],
-#                            condition==&quot;bad smile&quot; ~ prop.test(n, 58)$conf.int[2],
-#                            condition==&quot;bad frown&quot; ~ prop.test(n, 59)$conf.int[2]))
-# 
-# h.socGoal.plot &lt;- d.socGoal %&gt;%
-#   ggplot(., aes(x = response, y = proportion, group = condition, color=condition))+
-#   geom_line(position=pd) +
-#   geom_point(position=pd) +
-#   geom_pointrange(aes(ymin=ci_l, ymax=ci_u), size = 0.25, position=pd) +
-#   scale_color_brewer(palette=&quot;Dark2&quot;) +
-#   ylim(0, 1) +
-#   xlab(&quot;social goal&quot;) +
-#   ylab(&quot;proportion chosen&quot;) +
-#   theme_bw() +
-#   #ggtitle(&quot;Human Data&quot;) +
-#   theme(plot.title = element_text(hjust = 0.5))
-# h.socGoal.plot</code></pre>
+d.socGoal &lt;- dGoal2[dGoal2$question == &quot;social goal&quot;,]</code></pre>
 </div>
 <div id="analysis" class="section level3">
 <h3>analysis</h3>
-<pre class="r"><code># Bayesian mixed-effects model
-state &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+<pre class="r"><code>contrasts(d.state$utt)  &lt;- contr.sum(2) / 2
+contrasts(d.state$exp)  &lt;- contr.sum(2) / 2
+
+# Bayesian mixed-effects model
+rs.state &lt;- brm(response ~ utt * exp + 
+               (1 + utt*exp | id) + 
+               (1 + utt*exp | race),
              data = d.state,
-             family = cumulative(link = &quot;logit&quot;, threshold = &quot;flexible&quot;))</code></pre>
+             family = cumulative(link = &quot;logit&quot;, 
+                                 threshold = &quot;flexible&quot;),
+             chains = 4, cores = 4, iter = 8000,
+             file = &quot;brm_state_maximal_8k_4chain&quot;)</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
 <pre><code>## Start sampling</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000437 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.37 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 63.5389 seconds (Warm-up)
-## Chain 1:                43.1939 seconds (Sampling)
-## Chain 1:                106.733 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 0.00035 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 3.5 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 63.6814 seconds (Warm-up)
-## Chain 2:                65.1454 seconds (Sampling)
-## Chain 2:                128.827 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000344 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 3.44 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 62.3311 seconds (Warm-up)
-## Chain 3:                80.8922 seconds (Sampling)
-## Chain 3:                143.223 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 4).
-## Chain 4: 
-## Chain 4: Gradient evaluation took 0.000481 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 4.81 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 63.473 seconds (Warm-up)
-## Chain 4:                69.3912 seconds (Sampling)
-## Chain 4:                132.864 seconds (Total)
-## Chain 4:</code></pre>
-<pre><code>## Warning: There were 145 divergent transitions after warmup. See
+<pre><code>## Warning: There were 30 divergent transitions after warmup. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre><code>## Warning: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
-## Running the chains for more iterations may help. See
-## http://mc-stan.org/misc/warnings.html#bulk-ess</code></pre>
-<pre><code>## Warning: Tail Effective Samples Size (ESS) is too low, indicating posterior variances and tail quantiles may be unreliable.
-## Running the chains for more iterations may help. See
-## http://mc-stan.org/misc/warnings.html#tail-ess</code></pre>
-<pre class="r"><code>summary(state)</code></pre>
-<pre><code>## Warning: There were 145 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
+<pre class="r"><code>summary(rs.state)</code></pre>
+<pre><code>## Warning: There were 30 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
 ## See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>##  Family: cumulative 
 ##   Links: mu = logit; disc = identity 
 ## Formula: response ~ utt * exp + (1 + utt * exp | id) + (1 + utt * exp | race) 
 ##    Data: d.state (Number of observations: 220) 
-## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup samples = 4000
+## Samples: 4 chains, each with iter = 8000; warmup = 4000; thin = 1;
+##          total post-warmup samples = 16000
 ## 
 ## Group-Level Effects: 
 ## ~id (Number of levels: 55) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                      9.60      3.16     4.58    16.74
-## sd(uttbad)                        11.66      3.81     5.57    19.94
-## sd(expfrown)                      13.36      4.22     6.49    22.73
-## sd(uttbad:expfrown)               22.39      7.71    10.72    40.62
-## cor(Intercept,uttbad)             -0.07      0.19    -0.43     0.29
-## cor(Intercept,expfrown)           -0.36      0.19    -0.70     0.07
-## cor(uttbad,expfrown)              -0.11      0.18    -0.45     0.25
-## cor(Intercept,uttbad:expfrown)    -0.37      0.20    -0.73     0.04
-## cor(uttbad,uttbad:expfrown)        0.15      0.23    -0.29     0.59
-## cor(expfrown,uttbad:expfrown)      0.01      0.23    -0.42     0.46
-##                                Eff.Sample Rhat
-## sd(Intercept)                         511 1.00
-## sd(uttbad)                            327 1.02
-## sd(expfrown)                          480 1.01
-## sd(uttbad:expfrown)                   526 1.01
-## cor(Intercept,uttbad)                 636 1.00
-## cor(Intercept,expfrown)               991 1.01
-## cor(uttbad,expfrown)                  792 1.01
-## cor(Intercept,uttbad:expfrown)       1183 1.01
-## cor(uttbad,uttbad:expfrown)          1352 1.00
-## cor(expfrown,uttbad:expfrown)        1364 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)                8.82      2.66     4.59    14.84       1791
+## sd(utt1)                    14.60      4.37     7.45    24.37       1861
+## sd(exp1)                    15.65      4.70     8.05    26.36       1872
+## sd(utt1:exp1)               18.13      5.86     8.72    31.39       2141
+## cor(Intercept,utt1)         -0.32      0.16    -0.61     0.03       4460
+## cor(Intercept,exp1)         -0.10      0.19    -0.46     0.28       3839
+## cor(utt1,exp1)               0.24      0.18    -0.13     0.56       3217
+## cor(Intercept,utt1:exp1)     0.03      0.22    -0.40     0.46       5719
+## cor(utt1,utt1:exp1)         -0.56      0.15    -0.82    -0.22       5216
+## cor(exp1,utt1:exp1)         -0.43      0.18    -0.74    -0.05       5372
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## ~race (Number of levels: 4) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                      4.81      4.66     0.40    21.97
-## sd(uttbad)                         8.04      6.10     0.64    21.97
-## sd(expfrown)                       5.49      4.35     0.25    16.77
-## sd(uttbad:expfrown)                5.83      5.46     0.23    20.15
-## cor(Intercept,uttbad)             -0.24      0.41    -0.89     0.63
-## cor(Intercept,expfrown)           -0.06      0.43    -0.80     0.78
-## cor(uttbad,expfrown)              -0.02      0.43    -0.81     0.79
-## cor(Intercept,uttbad:expfrown)    -0.03      0.46    -0.83     0.79
-## cor(uttbad,uttbad:expfrown)        0.05      0.44    -0.77     0.81
-## cor(expfrown,uttbad:expfrown)     -0.04      0.45    -0.85     0.79
-##                                Eff.Sample Rhat
-## sd(Intercept)                          54 1.07
-## sd(uttbad)                            160 1.02
-## sd(expfrown)                          339 1.01
-## sd(uttbad:expfrown)                  1581 1.00
-## cor(Intercept,uttbad)                1228 1.01
-## cor(Intercept,expfrown)              3131 1.00
-## cor(uttbad,expfrown)                 2707 1.00
-## cor(Intercept,uttbad:expfrown)        364 1.01
-## cor(uttbad,uttbad:expfrown)          3566 1.00
-## cor(expfrown,uttbad:expfrown)        3070 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)                2.37      2.44     0.08     9.10       5105
+## sd(utt1)                     9.02      5.52     1.54    23.01       5988
+## sd(exp1)                     4.18      3.72     0.16    13.87       6081
+## sd(utt1:exp1)                6.35      5.51     0.26    20.29       6771
+## cor(Intercept,utt1)         -0.06      0.44    -0.83     0.76       9260
+## cor(Intercept,exp1)         -0.04      0.45    -0.83     0.79      14501
+## cor(utt1,exp1)              -0.05      0.43    -0.82     0.76      12511
+## cor(Intercept,utt1:exp1)     0.02      0.45    -0.80     0.83      16399
+## cor(utt1,utt1:exp1)          0.01      0.44    -0.80     0.81      14154
+## cor(exp1,utt1:exp1)          0.04      0.45    -0.80     0.83      11187
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## Population-Level Effects: 
-##                 Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept[1]      -35.98     11.73   -67.58   -18.39         94 1.04
-## Intercept[2]      -23.42      8.60   -48.52   -11.11         80 1.05
-## Intercept[3]      -15.09      6.79   -37.19    -6.20         68 1.06
-## Intercept[4]       -6.05      5.18   -25.44     0.10         54 1.07
-## Intercept[5]        6.27      4.90    -9.90    15.03         70 1.06
-## uttbad            -18.70      8.21   -36.50    -3.27        161 1.03
-## expfrown          -30.22      9.32   -51.32   -14.41        537 1.01
-## uttbad:expfrown    -1.52      7.89   -17.12    14.20       1466 1.00
+##              Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept[1]    -9.67      3.70   -18.29    -3.96       2372 1.00
+## Intercept[2]     2.06      2.53    -3.26     7.05       6172 1.00
+## Intercept[3]    10.37      3.66     4.14    18.55       2909 1.00
+## Intercept[4]    19.95      5.90    10.31    33.23       2096 1.00
+## Intercept[5]    33.77      9.77    17.78    55.98       1894 1.00
+## utt1            18.39      7.64     5.28    35.17       2828 1.00
+## exp1            29.64      8.92    14.90    49.76       1989 1.00
+## utt1:exp1        4.40      6.61    -8.69    18.17       5086 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<pre class="r"><code>infGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
-               data = d.infGoal,
-               family = cumulative(link = &quot;logit&quot;, threshold = &quot;flexible&quot;))</code></pre>
+<p>Regression model <!--
+
+y ~ b0 + b1*u + b2*e + b3*e*u
+
+u = {-0.5 (bad), 0.5 (good)}
+e = {-0.5 (frown), 0.5 (smile)}
+
+good_smile = b0 + 0.5 * b1 + 0.5 * b2 + 0.25 * b3
+good_frown = b0 + 0.5 * b1 - 0.5 * b2 - 0.25 * b3
+bad_smile = b0 - 0.5 * b1 + 0.5 * b2 - 0.25 * b3
+bad_frown = b0 - 0.5 * b1 - 0.5 * b2 + 0.25 * b3
+
+good_{smile - frown} = b2 + 0.5 * b3
+bad_{smile - frown} =  b2 - 0.5 * b3
+
+smile_{good - bad} = b1 + 0.5 * b3
+frown_{good - bad} = b1 - 0.5 * b3
+
+good_frown - bad_smile = b1 - b2
+--></p>
+<pre class="r"><code>h_good_smile_frown = c(
+  h_good_smile_frown = &quot;exp1 + 0.5 * utt1:exp1 = 0&quot;
+)
+
+h_bad_smile_frown = c(
+  h_bad_smile_frown = &quot;exp1 - 0.5 * utt1:exp1 = 0&quot;
+)
+
+h_smile_good_bad = c(
+  h_smile_good_bad = &quot;utt1 + 0.5 * utt1:exp1 = 0&quot;
+)
+
+h_frown_good_bad = c(
+  h_frown_good_bad = &quot;utt1 - 0.5 * utt1:exp1 = 0&quot;
+)
+
+h_goodFrown_badSmile = c(
+  h_goodFrown_badSmile = &quot;utt1 - exp1 = 0&quot;
+)
+
+
+hypothesis(rs.state, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))</code></pre>
+<pre><code>## Hypothesis Tests for class b:
+##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1   h_good_smile_frown    31.84      9.88    15.76    53.88         NA
+## 2    h_bad_smile_frown    27.44      9.13    12.65    48.28         NA
+## 3     h_smile_good_bad    20.59      8.31     6.55    39.08         NA
+## 4     h_frown_good_bad    16.19      8.33     1.70    34.71         NA
+## 5 h_goodFrown_badSmile   -11.24      7.34   -27.59     2.13         NA
+##   Post.Prob Star
+## 1        NA    *
+## 2        NA    *
+## 3        NA    *
+## 4        NA    *
+## 5        NA     
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<pre class="r"><code>contrasts(d.infGoal$utt)  &lt;- contr.sum(2) / 2
+contrasts(d.infGoal$exp)  &lt;- contr.sum(2) / 2
+
+
+rs.infGoal &lt;- brm(response ~ utt * exp + 
+                    (1 + utt*exp|id) + 
+                    (1 + utt*exp|race),
+                data = d.infGoal,
+               family = cumulative(link = &quot;logit&quot;, 
+                                   threshold = &quot;flexible&quot;),
+               chains = 4, cores = 4, iter = 8000,
+               file = &quot;brm_infGoal_maximal_8k_4chain&quot;)</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## recompiling to avoid crashing R session</code></pre>
 <pre><code>## Start sampling</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 0.000417 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.17 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 77.1917 seconds (Warm-up)
-## Chain 1:                89.7698 seconds (Sampling)
-## Chain 1:                166.961 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000356 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 3.56 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 67.0961 seconds (Warm-up)
-## Chain 2:                90.85 seconds (Sampling)
-## Chain 2:                157.946 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000354 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 3.54 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 61.8714 seconds (Warm-up)
-## Chain 3:                89.6243 seconds (Sampling)
-## Chain 3:                151.496 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 4).
-## Chain 4: 
-## Chain 4: Gradient evaluation took 0.000362 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 3.62 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 65.8883 seconds (Warm-up)
-## Chain 4:                89.9294 seconds (Sampling)
-## Chain 4:                155.818 seconds (Total)
-## Chain 4:</code></pre>
-<pre><code>## Warning: There were 5 divergent transitions after warmup. See
+<pre><code>## Warning: There were 15 divergent transitions after warmup. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
 ## to find out why this is a problem and how to eliminate them.</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>summary(infGoal)</code></pre>
-<pre><code>## Warning: There were 5 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
+<pre class="r"><code>summary(rs.infGoal)</code></pre>
+<pre><code>## Warning: There were 15 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
 ## See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>##  Family: cumulative 
 ##   Links: mu = logit; disc = identity 
 ## Formula: response ~ utt * exp + (1 + utt * exp | id) + (1 + utt * exp | race) 
 ##    Data: d.infGoal (Number of observations: 235) 
-## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup samples = 4000
+## Samples: 4 chains, each with iter = 8000; warmup = 4000; thin = 1;
+##          total post-warmup samples = 16000
 ## 
 ## Group-Level Effects: 
 ## ~id (Number of levels: 60) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                     11.65      4.20     5.30    21.40
-## sd(uttbad)                        20.90      7.31     9.63    38.00
-## sd(expfrown)                      22.20      8.15    10.05    41.60
-## sd(uttbad:expfrown)               33.62     11.91    15.58    60.66
-## cor(Intercept,uttbad)             -0.65      0.10    -0.81    -0.43
-## cor(Intercept,expfrown)           -0.35      0.19    -0.68     0.05
-## cor(uttbad,expfrown)               0.21      0.18    -0.17     0.55
-## cor(Intercept,uttbad:expfrown)     0.37      0.15     0.04     0.63
-## cor(uttbad,uttbad:expfrown)       -0.42      0.15    -0.68    -0.09
-## cor(expfrown,uttbad:expfrown)     -0.79      0.09    -0.92    -0.59
-##                                Eff.Sample Rhat
-## sd(Intercept)                         472 1.01
-## sd(uttbad)                            547 1.01
-## sd(expfrown)                          640 1.01
-## sd(uttbad:expfrown)                   600 1.01
-## cor(Intercept,uttbad)                1113 1.00
-## cor(Intercept,expfrown)              1544 1.00
-## cor(uttbad,expfrown)                 1670 1.00
-## cor(Intercept,uttbad:expfrown)       1442 1.00
-## cor(uttbad,uttbad:expfrown)          1711 1.00
-## cor(expfrown,uttbad:expfrown)        1306 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)                9.96      3.51     4.71    18.39       2154
+## sd(utt1)                    23.11      7.93    11.51    41.91       2149
+## sd(exp1)                    14.54      5.22     6.86    26.98       2156
+## sd(utt1:exp1)               43.53     15.28    21.25    80.72       2129
+## cor(Intercept,utt1)         -0.09      0.20    -0.47     0.30       3380
+## cor(Intercept,exp1)         -0.18      0.21    -0.56     0.24       4819
+## cor(utt1,exp1)              -0.24      0.20    -0.61     0.17       4402
+## cor(Intercept,utt1:exp1)    -0.08      0.20    -0.46     0.31       3442
+## cor(utt1,utt1:exp1)         -0.23      0.18    -0.57     0.13       3813
+## cor(exp1,utt1:exp1)          0.16      0.21    -0.26     0.55       2634
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## ~race (Number of levels: 4) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                      2.78      2.70     0.09     9.93
-## sd(uttbad)                         3.44      3.21     0.12    11.96
-## sd(expfrown)                       5.69      4.66     0.25    17.12
-## sd(uttbad:expfrown)                7.09      6.39     0.24    23.73
-## cor(Intercept,uttbad)             -0.05      0.45    -0.85     0.78
-## cor(Intercept,expfrown)            0.01      0.45    -0.82     0.81
-## cor(uttbad,expfrown)              -0.04      0.45    -0.82     0.78
-## cor(Intercept,uttbad:expfrown)    -0.07      0.44    -0.84     0.78
-## cor(uttbad,uttbad:expfrown)       -0.01      0.45    -0.82     0.82
-## cor(expfrown,uttbad:expfrown)     -0.11      0.45    -0.85     0.75
-##                                Eff.Sample Rhat
-## sd(Intercept)                        1644 1.00
-## sd(uttbad)                           1989 1.00
-## sd(expfrown)                         2251 1.00
-## sd(uttbad:expfrown)                   591 1.01
-## cor(Intercept,uttbad)                4402 1.00
-## cor(Intercept,expfrown)              4853 1.00
-## cor(uttbad,expfrown)                 3538 1.00
-## cor(Intercept,uttbad:expfrown)       4488 1.00
-## cor(uttbad,uttbad:expfrown)          2541 1.00
-## cor(expfrown,uttbad:expfrown)        2752 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)                3.40      3.01     0.14    11.36       6314
+## sd(utt1)                     6.16      4.90     0.28    18.55       6182
+## sd(exp1)                     4.59      4.19     0.15    15.46       7772
+## sd(utt1:exp1)                7.34      6.22     0.27    23.31       7564
+## cor(Intercept,utt1)          0.04      0.44    -0.78     0.82      15343
+## cor(Intercept,exp1)         -0.06      0.45    -0.85     0.80      19142
+## cor(utt1,exp1)              -0.01      0.45    -0.82     0.80      15753
+## cor(Intercept,utt1:exp1)    -0.04      0.45    -0.83     0.78      18532
+## cor(utt1,utt1:exp1)         -0.15      0.44    -0.87     0.74      13283
+## cor(exp1,utt1:exp1)         -0.01      0.45    -0.81     0.81      12952
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## Population-Level Effects: 
-##                 Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept[1]      -18.73      6.95   -34.97    -8.28        470 1.01
-## Intercept[2]       -5.07      3.24   -12.83    -0.09        808 1.01
-## Intercept[3]        7.39      3.52     1.96    15.96       1120 1.00
-## uttbad             -9.24      4.91   -20.59    -1.55        608 1.01
-## expfrown          -37.91     14.00   -70.41   -17.02        539 1.01
-## uttbad:expfrown    59.95     21.17    27.86   108.69        468 1.01
+##              Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept[1]   -12.33      5.14   -24.39    -4.43       2630 1.00
+## Intercept[2]     4.16      3.24    -1.87    11.17       4904 1.00
+## Intercept[3]    19.40      6.74     9.11    35.49       2380 1.00
+## utt1           -22.81      9.27   -44.38    -8.69       2289 1.00
+## exp1             9.82      5.60     0.65    22.75       2861 1.00
+## utt1:exp1       68.70     23.67    33.44   124.33       2021 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<pre class="r"><code>socGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
+<pre class="r"><code>hypothesis(rs.infGoal, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))</code></pre>
+<pre><code>## Hypothesis Tests for class b:
+##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1   h_good_smile_frown    44.17     15.76    20.67    80.99         NA
+## 2    h_bad_smile_frown   -24.53      9.72   -47.87    -9.82         NA
+## 3     h_smile_good_bad    11.54      6.93    -0.27    27.11         NA
+## 4     h_frown_good_bad   -57.16     20.10  -104.48   -27.48         NA
+## 5 h_goodFrown_badSmile   -32.63     13.25   -62.88   -12.64         NA
+##   Post.Prob Star
+## 1        NA    *
+## 2        NA    *
+## 3        NA     
+## 4        NA    *
+## 5        NA    *
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
+<pre class="r"><code>contrasts(d.socGoal$utt)  &lt;- contr.sum(2) / 2
+contrasts(d.socGoal$exp)  &lt;- contr.sum(2) / 2
+
+
+rs.socGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race),
                data = d.socGoal,
-               family = cumulative(link = &quot;logit&quot;, threshold = &quot;flexible&quot;))</code></pre>
+              family = cumulative(link = &quot;logit&quot;, 
+                                   threshold = &quot;flexible&quot;),
+               chains = 4, cores = 4, iter = 8000,
+               file = &quot;brm_socGoal_maximal_8k_4chain&quot;)</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## recompiling to avoid crashing R session</code></pre>
 <pre><code>## Start sampling</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 0.00045 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.5 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 58.5426 seconds (Warm-up)
-## Chain 1:                59.6679 seconds (Sampling)
-## Chain 1:                118.21 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 0.000356 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 3.56 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 60.1321 seconds (Warm-up)
-## Chain 2:                45.8853 seconds (Sampling)
-## Chain 2:                106.017 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 0.000356 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 3.56 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 55.2115 seconds (Warm-up)
-## Chain 3:                46.4774 seconds (Sampling)
-## Chain 3:                101.689 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL '06a0adf1413ae96686e2b42539b23dd2' NOW (CHAIN 4).
-## Chain 4: 
-## Chain 4: Gradient evaluation took 0.000353 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 3.53 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 55.2702 seconds (Warm-up)
-## Chain 4:                45.8106 seconds (Sampling)
-## Chain 4:                101.081 seconds (Total)
-## Chain 4:</code></pre>
-<pre class="r"><code>summary(socGoal)</code></pre>
+<pre><code>## Warning: There were 15 divergent transitions after warmup. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+## to find out why this is a problem and how to eliminate them.</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>summary(rs.socGoal)</code></pre>
+<pre><code>## Warning: There were 15 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
+## See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>##  Family: cumulative 
 ##   Links: mu = logit; disc = identity 
 ## Formula: response ~ utt * exp + (1 + utt * exp | id) + (1 + utt * exp | race) 
 ##    Data: d.socGoal (Number of observations: 233) 
-## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
-##          total post-warmup samples = 4000
+## Samples: 4 chains, each with iter = 8000; warmup = 4000; thin = 1;
+##          total post-warmup samples = 16000
 ## 
 ## Group-Level Effects: 
 ## ~id (Number of levels: 59) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                     11.56      3.75     5.60    20.20
-## sd(uttbad)                        19.47      6.11     9.85    33.31
-## sd(expfrown)                      21.42      6.72    10.74    36.99
-## sd(uttbad:expfrown)               26.75      8.32    13.77    45.36
-## cor(Intercept,uttbad)             -0.13      0.18    -0.46     0.24
-## cor(Intercept,expfrown)           -0.40      0.14    -0.64    -0.09
-## cor(uttbad,expfrown)              -0.08      0.16    -0.39     0.23
-## cor(Intercept,uttbad:expfrown)     0.30      0.17    -0.05     0.60
-## cor(uttbad,uttbad:expfrown)       -0.52      0.14    -0.75    -0.21
-## cor(expfrown,uttbad:expfrown)     -0.49      0.14    -0.73    -0.17
-##                                Eff.Sample Rhat
-## sd(Intercept)                         632 1.01
-## sd(uttbad)                            678 1.00
-## sd(expfrown)                          561 1.00
-## sd(uttbad:expfrown)                   670 1.00
-## cor(Intercept,uttbad)                 753 1.00
-## cor(Intercept,expfrown)               939 1.00
-## cor(uttbad,expfrown)                  735 1.00
-## cor(Intercept,uttbad:expfrown)       1114 1.01
-## cor(uttbad,uttbad:expfrown)          1282 1.00
-## cor(expfrown,uttbad:expfrown)        1375 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)               12.19      3.86     6.22    21.27       2398
+## sd(utt1)                    16.90      5.42     8.64    29.60       2482
+## sd(exp1)                    19.48      6.15     9.93    33.83       2546
+## sd(utt1:exp1)               30.00      9.77    15.01    53.00       2496
+## cor(Intercept,utt1)         -0.21      0.18    -0.54     0.17       5132
+## cor(Intercept,exp1)         -0.04      0.18    -0.39     0.32       5321
+## cor(utt1,exp1)              -0.50      0.16    -0.76    -0.15       4016
+## cor(Intercept,utt1:exp1)    -0.09      0.19    -0.45     0.29       6357
+## cor(utt1,utt1:exp1)         -0.07      0.19    -0.43     0.31       4196
+## cor(exp1,utt1:exp1)          0.00      0.19    -0.36     0.37       5521
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## ~race (Number of levels: 4) 
-##                                Estimate Est.Error l-95% CI u-95% CI
-## sd(Intercept)                      2.15      2.20     0.06     7.99
-## sd(uttbad)                         4.31      3.77     0.15    13.88
-## sd(expfrown)                       5.24      4.18     0.27    15.63
-## sd(uttbad:expfrown)                5.20      4.64     0.17    17.14
-## cor(Intercept,uttbad)             -0.04      0.45    -0.82     0.80
-## cor(Intercept,expfrown)           -0.06      0.45    -0.86     0.79
-## cor(uttbad,expfrown)               0.05      0.45    -0.80     0.84
-## cor(Intercept,uttbad:expfrown)    -0.01      0.45    -0.80     0.80
-## cor(uttbad,uttbad:expfrown)       -0.06      0.45    -0.84     0.78
-## cor(expfrown,uttbad:expfrown)     -0.05      0.45    -0.83     0.81
-##                                Eff.Sample Rhat
-## sd(Intercept)                        1709 1.00
-## sd(uttbad)                           1632 1.00
-## sd(expfrown)                         1425 1.00
-## sd(uttbad:expfrown)                  2065 1.00
-## cor(Intercept,uttbad)                3776 1.00
-## cor(Intercept,expfrown)              3010 1.00
-## cor(uttbad,expfrown)                 2457 1.00
-## cor(Intercept,uttbad:expfrown)       4300 1.00
-## cor(uttbad,uttbad:expfrown)          3818 1.00
-## cor(expfrown,uttbad:expfrown)        3184 1.00
+##                          Estimate Est.Error l-95% CI u-95% CI Eff.Sample
+## sd(Intercept)                2.78      2.66     0.10     9.86       7528
+## sd(utt1)                     4.02      3.80     0.12    13.88       8468
+## sd(exp1)                     5.30      4.53     0.19    16.85       5856
+## sd(utt1:exp1)                7.68      6.52     0.28    24.11       6401
+## cor(Intercept,utt1)         -0.06      0.46    -0.85     0.80      19092
+## cor(Intercept,exp1)         -0.09      0.45    -0.85     0.77      15046
+## cor(utt1,exp1)               0.03      0.45    -0.79     0.83      12840
+## cor(Intercept,utt1:exp1)    -0.09      0.44    -0.85     0.77      16837
+## cor(utt1,utt1:exp1)          0.03      0.45    -0.80     0.83      13752
+## cor(exp1,utt1:exp1)          0.04      0.45    -0.79     0.83      12156
+##                          Rhat
+## sd(Intercept)            1.00
+## sd(utt1)                 1.00
+## sd(exp1)                 1.00
+## sd(utt1:exp1)            1.00
+## cor(Intercept,utt1)      1.00
+## cor(Intercept,exp1)      1.00
+## cor(utt1,exp1)           1.00
+## cor(Intercept,utt1:exp1) 1.00
+## cor(utt1,utt1:exp1)      1.00
+## cor(exp1,utt1:exp1)      1.00
 ## 
 ## Population-Level Effects: 
-##                 Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept[1]      -26.18      7.95   -44.25   -13.59        651 1.01
-## Intercept[2]       -8.05      3.48   -16.26    -2.80        845 1.00
-## Intercept[3]        3.01      2.53    -1.81     8.29       1244 1.00
-## uttbad            -22.05      7.42   -39.08   -10.03        731 1.00
-## expfrown           -0.61      4.53    -9.71     8.51       1148 1.00
-## uttbad:expfrown   -12.46      7.23   -28.59     0.10       1272 1.00
+##              Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept[1]   -13.20      4.87   -24.84    -5.82       2708 1.00
+## Intercept[2]     5.76      3.16     0.21    12.85       5089 1.00
+## Intercept[3]    18.67      5.98     9.23    32.80       2797 1.00
+## utt1            29.52      9.44    14.68    51.42       2515 1.00
+## exp1             6.75      5.17    -2.56    18.22       4643 1.00
+## utt1:exp1      -10.39      8.21   -28.34     3.99       4231 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>hypothesis(rs.socGoal, c(h_good_smile_frown, h_bad_smile_frown,
+                       h_smile_good_bad, h_frown_good_bad,
+                       h_goodFrown_badSmile))</code></pre>
+<pre><code>## Hypothesis Tests for class b:
+##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
+## 1   h_good_smile_frown     1.56      5.89   -10.29    13.46         NA
+## 2    h_bad_smile_frown    11.95      7.24    -0.36    28.00         NA
+## 3     h_smile_good_bad    24.32      8.76    10.34    44.25         NA
+## 4     h_frown_good_bad    34.71     11.63    16.66    61.75         NA
+## 5 h_goodFrown_badSmile    22.76      9.27     7.94    44.20         NA
+##   Post.Prob Star
+## 1        NA     
+## 2        NA     
+## 3        NA    *
+## 4        NA    *
+## 5        NA    *
+## ---
+## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
+## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
+## for two-sided hypotheses, the value tested against lies outside the 95%-CI.
+## Posterior probabilities of point hypotheses assume equal prior probabilities.</code></pre>
 </div>
 
 
