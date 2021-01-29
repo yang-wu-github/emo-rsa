@@ -434,6 +434,7 @@ smile_{good - bad} = b1 + 0.5 * b3
 frown_{good - bad} = b1 - 0.5 * b3
 
 good_frown - bad_smile = b1 - b2
+good_smile - bad_frown = b1 + b2
 --></p>
 <pre class="r"><code>h_good_smile_frown = c(
   h_good_smile_frown = &quot;exp1 + 0.5 * utt1:exp1 = 0&quot;
@@ -455,10 +456,15 @@ h_goodFrown_badSmile = c(
   h_goodFrown_badSmile = &quot;utt1 - exp1 = 0&quot;
 )
 
+h_goodSmile_badFrown = c(
+  h_goodSmile_badFrown = &quot;utt1 + exp1 = 0&quot;
+)
+
+
 
 hypothesis(rs.state, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))</code></pre>
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))</code></pre>
 <pre><code>## Hypothesis Tests for class b:
 ##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1   h_good_smile_frown    31.84      9.88    15.76    53.88         NA
@@ -466,12 +472,14 @@ hypothesis(rs.state, c(h_good_smile_frown, h_bad_smile_frown,
 ## 3     h_smile_good_bad    20.59      8.31     6.55    39.08         NA
 ## 4     h_frown_good_bad    16.19      8.33     1.70    34.71         NA
 ## 5 h_goodFrown_badSmile   -11.24      7.34   -27.59     2.13         NA
+## 6 h_goodSmile_badFrown    48.03     14.90    23.71    81.49         NA
 ##   Post.Prob Star
 ## 1        NA    *
 ## 2        NA    *
 ## 3        NA    *
 ## 4        NA    *
 ## 5        NA     
+## 6        NA    *
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -488,14 +496,8 @@ rs.infGoal &lt;- brm(response ~ utt * exp +
                family = cumulative(link = &quot;logit&quot;, 
                                    threshold = &quot;flexible&quot;),
                chains = 4, cores = 4, iter = 8000,
-               file = &quot;brm_infGoal_maximal_8k_4chain&quot;)</code></pre>
-<pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## Start sampling</code></pre>
-<pre><code>## Warning: There were 15 divergent transitions after warmup. See
-## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-## to find out why this is a problem and how to eliminate them.</code></pre>
-<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>summary(rs.infGoal)</code></pre>
+               file = &quot;brm_infGoal_maximal_8k_4chain&quot;)
+summary(rs.infGoal)</code></pre>
 <pre><code>## Warning: There were 15 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
 ## See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>##  Family: cumulative 
@@ -568,7 +570,7 @@ rs.infGoal &lt;- brm(response ~ utt * exp +
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <pre class="r"><code>hypothesis(rs.infGoal, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))</code></pre>
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))</code></pre>
 <pre><code>## Hypothesis Tests for class b:
 ##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1   h_good_smile_frown    44.17     15.76    20.67    80.99         NA
@@ -576,12 +578,14 @@ rs.infGoal &lt;- brm(response ~ utt * exp +
 ## 3     h_smile_good_bad    11.54      6.93    -0.27    27.11         NA
 ## 4     h_frown_good_bad   -57.16     20.10  -104.48   -27.48         NA
 ## 5 h_goodFrown_badSmile   -32.63     13.25   -62.88   -12.64         NA
+## 6 h_goodSmile_badFrown   -12.99      7.69   -30.75    -0.13         NA
 ##   Post.Prob Star
 ## 1        NA    *
 ## 2        NA    *
 ## 3        NA     
 ## 4        NA    *
 ## 5        NA    *
+## 6        NA    *
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
@@ -596,14 +600,10 @@ rs.socGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race
               family = cumulative(link = &quot;logit&quot;, 
                                    threshold = &quot;flexible&quot;),
                chains = 4, cores = 4, iter = 8000,
-               file = &quot;brm_socGoal_maximal_8k_4chain&quot;)</code></pre>
-<pre><code>## Compiling the C++ model</code></pre>
-<pre><code>## Start sampling</code></pre>
-<pre><code>## Warning: There were 15 divergent transitions after warmup. See
-## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-## to find out why this is a problem and how to eliminate them.</code></pre>
-<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>summary(rs.socGoal)</code></pre>
+               file = &quot;brm_socGoal_maximal_8k_4chain&quot;)
+
+
+summary(rs.socGoal)</code></pre>
 <pre><code>## Warning: There were 15 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help.
 ## See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>##  Family: cumulative 
@@ -676,7 +676,7 @@ rs.socGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 <pre class="r"><code>hypothesis(rs.socGoal, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))</code></pre>
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))</code></pre>
 <pre><code>## Hypothesis Tests for class b:
 ##             Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio
 ## 1   h_good_smile_frown     1.56      5.89   -10.29    13.46         NA
@@ -684,12 +684,14 @@ rs.socGoal &lt;- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race
 ## 3     h_smile_good_bad    24.32      8.76    10.34    44.25         NA
 ## 4     h_frown_good_bad    34.71     11.63    16.66    61.75         NA
 ## 5 h_goodFrown_badSmile    22.76      9.27     7.94    44.20         NA
+## 6 h_goodSmile_badFrown    36.27     12.07    17.39    64.50         NA
 ##   Post.Prob Star
 ## 1        NA     
 ## 2        NA     
 ## 3        NA    *
 ## 4        NA    *
 ## 5        NA    *
+## 6        NA    *
 ## ---
 ## 'CI': 90%-CI for one-sided and 95%-CI for two-sided hypotheses.
 ## '*': For one-sided hypotheses, the posterior probability exceeds 95%;
