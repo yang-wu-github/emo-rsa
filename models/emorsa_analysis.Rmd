@@ -182,6 +182,7 @@ smile_{good - bad} = b1 + 0.5 * b3
 frown_{good - bad} = b1 - 0.5 * b3
 
 good_frown - bad_smile = b1 - b2
+good_smile - bad_frown = b1 + b2
 -->
 
 ```{r}
@@ -205,10 +206,15 @@ h_goodFrown_badSmile = c(
   h_goodFrown_badSmile = "utt1 - exp1 = 0"
 )
 
+h_goodSmile_badFrown = c(
+  h_goodSmile_badFrown = "utt1 + exp1 = 0"
+)
+
+
 
 hypothesis(rs.state, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))
 ```
 
 
@@ -230,7 +236,7 @@ summary(rs.infGoal)
 
 hypothesis(rs.infGoal, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))
 
 ```
 
@@ -251,5 +257,5 @@ summary(rs.socGoal)
 
 hypothesis(rs.socGoal, c(h_good_smile_frown, h_bad_smile_frown,
                        h_smile_good_bad, h_frown_good_bad,
-                       h_goodFrown_badSmile))
+                       h_goodFrown_badSmile, h_goodSmile_badFrown))
 ```
