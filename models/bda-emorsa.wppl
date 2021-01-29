@@ -1,5 +1,5 @@
 
-// time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 1
+// time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 8
 
 var args = process.argv
 var chain = last(args) // load index as last command line index
@@ -17,20 +17,21 @@ var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
 var modelObj = {
   // Ma0_UttInfEmoNon,
   // Ma1_UttInfEmoSoc,
-  Ma2_UttInfEmoBal,
-  // Ma3_UttInfEmoTru,
+  // Ma2_UttInfEmoBal,
+  Ma3_UttInfEmoTru,
   // Ma4_UttInfEmoInf,
-  // Ma5_UttInfEmoTruInf,
+  Ma5_UttInfEmoTruInf,
   Ma6_UttInfEmoTruSoc,
   Ma7_UttInfEmoTruBal,
-  Mb0_UttBalEmoNon,
-  Mb1_UttBalEmoSoc,
-  Mb2_UttBalEmoBal,
+  // Mb0_UttBalEmoNon,
+  // Mb1_UttBalEmoSoc,
+  // Mb2_UttBalEmoBal,
   Mb3_UttBalEmoTru,
-  Mb4_UttBalEmoInf,
+  // Mb4_UttBalEmoInf,
   Mb5_UttBalEmoTruInf,
   Mb6_UttBalEmoTruSoc,
-  Mb7_UttBalEmoTruBal
+  Mb7_UttBalEmoTruBal//,
+  // Mb8_UttBalEmoInfSoc
 }
 
 var modelIndices = _.keys(modelObj)
@@ -178,6 +179,7 @@ var model = function(){
 
 
 var totalIterations = 20000, lag =  1;
+// var totalIterations = 2000, lag =  1;
 var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
 
 var outfile = 'bda-' + modelName + '-goalScale-priors2_' +
