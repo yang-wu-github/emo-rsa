@@ -1,5 +1,5 @@
 
-// time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 8
+// time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 1
 
 var args = process.argv
 var chain = last(args) // load index as last command line index
@@ -15,31 +15,61 @@ var semObjects = levels(df_semantics, "trial")
 var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
 
 var modelObj = {
-  // Ma0_UttInfEmoNon,
-  // Ma1_UttInfEmoSoc,
-  // Ma2_UttInfEmoBal,
+  Ma0_UttInfEmoNon,
+  Ma1_UttInfEmoSoc,
+  Ma2_UttInfEmoBal,
   Ma3_UttInfEmoTru,
-  // Ma4_UttInfEmoInf,
+  Ma4_UttInfEmoInf,
   Ma5_UttInfEmoTruInf,
   Ma6_UttInfEmoTruSoc,
   Ma7_UttInfEmoTruBal,
-  // Mb0_UttBalEmoNon,
-  // Mb1_UttBalEmoSoc,
-  // Mb2_UttBalEmoBal,
+  Mb0_UttBalEmoNon,
+  Mb1_UttBalEmoSoc,
+  Mb2_UttBalEmoBal,
   Mb3_UttBalEmoTru,
-  // Mb4_UttBalEmoInf,
+  Mb4_UttBalEmoInf,
   Mb5_UttBalEmoTruInf,
   Mb6_UttBalEmoTruSoc,
-  Mb7_UttBalEmoTruBal//,
-  // Mb8_UttBalEmoInfSoc
+  Mb7_UttBalEmoTruBal,
+  Mb8_UttBalEmoInfSoc,
+  Mc2_UttInfEmoBal,
+  Mc7_UttInfEmoTruBal,
+  Md1_UttBalEmoSoc,
+  Md4_UttBalEmoInf,
+  Md5_UttBalEmoTruInf,
+  Md6_UttBalEmoTruSoc
 }
+
+var modelsWithWeights = [
+  "Ma2_UttInfEmoBal",
+  "Ma7_UttInfEmoTruBal",
+  "Mb0_UttBalEmoNon",
+  "Mb1_UttBalEmoSoc",
+  "Mb2_UttBalEmoBal",
+  "Mb3_UttBalEmoTru",
+  "Mb4_UttBalEmoInf",
+  "Mb5_UttBalEmoTruInf",
+  "Mb6_UttBalEmoTruSoc",
+  "Mb7_UttBalEmoTruBal",
+  "Mb8_UttBalEmoInfSoc",
+  "Mc2_UttInfEmoBal",
+  "Mc7_UttInfEmoTruBal",
+  "Md1_UttBalEmoSoc",
+  "Md4_UttBalEmoInf",
+  "Md5_UttBalEmoTruInf",
+  "Md6_UttBalEmoTruSoc"
+]
+
 
 var modelIndices = _.keys(modelObj)
 var modelIndex = (chain - 1) % modelIndices.length
 display(modelIndex)
 var modelName = modelIndices[modelIndex]
 display(modelName)
+display(modelsWithWeights.indexOf(modelName))
 
+var modelHasWeights = modelsWithWeights.indexOf(modelName) > -1
+display(modelHasWeights)
 var chain_num = Math.ceil(chain / modelIndices.length)
 display(chain_num)
 
@@ -48,8 +78,9 @@ var rsaModel = modelObj[modelName]
 var model = function(){
   // global free parameters
   var speakerOptimality = uniformDrift({a: 0, b: 20, width: 2})
-  var goalExp = uniformDrift({a: 0, b: 5, width: 1})
-  var goalScale = uniformDrift({a: 0, b: 50, width: 2})
+
+  var goalExp = modelHasWeights ? uniformDrift({a: 0, b: 5, width: 1}) : 1
+  var goalScale = modelHasWeights ? uniformDrift({a: 0, b: 100, width: 10}) : 1
 
   var goalWeightBins = map(function(x){ return Math.pow(x, goalExp)}, weightBins)
   var scaledGoalWeights = map(function(x){ return x / goalScale }, goalWeightBins)
@@ -170,8 +201,10 @@ var model = function(){
   })
 
   query.add([modelName, chain_num, "parameter", "speakerOptimality", "NA", "NA"], speakerOptimality)
-  query.add([modelName, chain_num, "parameter", "goalExp", "NA", "NA"], goalExp)
-  query.add([modelName, chain_num, "parameter", "goalScale", "NA", "NA"], goalScale)
+  if (modelHasWeights) {
+    query.add([modelName, chain_num, "parameter", "goalExp", "NA", "NA"], goalExp)
+    query.add([modelName, chain_num, "parameter", "goalScale", "NA", "NA"], goalScale)
+  }
 
   return query
 
@@ -180,9 +213,9 @@ var model = function(){
 
 var totalIterations = 20000, lag =  1;
 // var totalIterations = 2000, lag =  1;
-var samples = totalIterations/(lag + 1), burn = totalIterations / 2;
+var samples = totalIterations/(lag + 1), burn = totalIterations;// / 2;
 
-var outfile = 'bda-' + modelName + '-goalScale-priors2_' +
+var outfile = 'bda-' + modelName + '-cogsciSubm_' +
   totalIterations+ '_burn' + burn +
   '_lag' + lag + '_chain' + chain_num + '.csv'
 
