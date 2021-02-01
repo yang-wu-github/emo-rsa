@@ -17,14 +17,14 @@ var semObjects = levels(df_semantics, "trial")
 var semObjDict = {Bad: "bad", Good: "good", Pos: "smile", Neg: "frown"}
 
 var modelObj = {
-  Ma0_UttInfEmoNon,
-  Ma1_UttInfEmoSoc,
-  Ma2_UttInfEmoBal,
-  Ma3_UttInfEmoTru,
-  Ma4_UttInfEmoInf,
-  Ma5_UttInfEmoTruInf,
-  Ma6_UttInfEmoTruSoc,
-  Ma7_UttInfEmoTruBal,
+  // Ma0_UttInfEmoNon,
+  // Ma1_UttInfEmoSoc,
+  // Ma2_UttInfEmoBal,
+  // Ma3_UttInfEmoTru,
+  // Ma4_UttInfEmoInf,
+  // Ma5_UttInfEmoTruInf,
+  // Ma6_UttInfEmoTruSoc,
+  // Ma7_UttInfEmoTruBal,
   Mb0_UttBalEmoNon,
   Mb1_UttBalEmoSoc,
   Mb2_UttBalEmoBal,
@@ -80,7 +80,7 @@ var model = function(){
   // global free parameters
   var speakerOptimality = uniform({a: 0, b: 20})
 	var goalExp = modelHasWeights ? uniformDrift({a: 0, b: 5, width: 1}) : 1
-  var goalScale = modelHasWeights ? uniformDrift({a: 0, b: 100, width: 10}) : 1
+  var goalScale = modelHasWeights ? uniformDrift({a: 0.1, b: 100, width: 10}) : 1
 
   var goalWeightBins = map(function(x){ return Math.pow(x, goalExp)}, weightBins)
   var scaledGoalWeights = map(function(x){ return x / goalScale }, goalWeightBins)
