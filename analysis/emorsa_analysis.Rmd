@@ -21,7 +21,7 @@ rm(list = ls())
 ```
 ### state: human
 ```{r}
-d.raw <- read.csv(here("models/201221EMO-RSA_MAIN_STATE_January 13, 2021_15.51.csv"))
+d.raw <- read.csv(here("/data/201221EMO-RSA_MAIN_STATE_January 13, 2021_15.51.csv"))
 d <- d.raw %>%
   slice(-1:-2) %>%
   filter(Consent != "") %>%
@@ -80,7 +80,7 @@ d.state <- d %>%
 ```
 ###infGoal & socGoal: human
 ```{r}
-dGoal.raw <- read.csv(here("models/201221EMO-RSA_MAIN_COMMGOALS_PREREGISTERED_DONOTCHANGE_January 13, 2021_20.41.csv"))
+dGoal.raw <- read.csv(here("data/201221EMO-RSA_MAIN_COMMGOALS_PREREGISTERED_DONOTCHANGE_January 13, 2021_20.41.csv"))
 dGoal <- dGoal.raw %>%
   slice(-1:-2) %>%
   filter(Q358 != "", Q129 != "test") %>%
@@ -145,7 +145,7 @@ d.socGoal <- dGoal2[dGoal2$question == "social goal",]
 
 
 
-```{r cache = TRUE}
+```{r}
 contrasts(d.state$utt)  <- contr.sum(2) / 2
 contrasts(d.state$exp)  <- contr.sum(2) / 2
 

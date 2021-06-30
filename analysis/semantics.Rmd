@@ -16,7 +16,7 @@ rm(list = ls())
 ```
 
 ```{r}
-d.raw <- read.csv(here("models/201221EMO-RSA_SEMANTICS_December 22, 2020_17.46.csv"))
+d.raw <- read.csv(here("data/201221EMO-RSA_SEMANTICS_December 22, 2020_17.46.csv"))
 d <- d.raw %>%
   slice(-1:-9) %>% # remove preview and pilot data
   select(ResponseId, starts_with("A_F"), starts_with("W_M"), 
@@ -70,7 +70,7 @@ ggplot(semantics, aes(x = state, y = mean, group = trial, color=trial)) +
   geom_point(aes(shape=trial), position=pd) +
   scale_color_brewer(palette="Set2") +
   theme_bw() 
-ggsave(here("models/plot_semantics.pdf"), width=5, height=3)
+ggsave(here("analysis/figures/plot_semantics.pdf"), width=5, height=3)
 ```
 
 

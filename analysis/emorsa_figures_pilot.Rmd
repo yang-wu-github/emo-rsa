@@ -542,7 +542,7 @@ Mb7.socGoal <- d.Mb7.l1 %>%
 
 ### Human Data
 ```{r}
-d.raw <- read.csv(here("models/EMORSA2.csv"))
+d.raw <- read.csv(here("data/pilot_data.csv"))
 d <- d.raw %>%
   slice(-1:-8) %>%
   select(ResponseId, Status, starts_with("PUtt_"), starts_with("NUtt_")) %>%
@@ -764,12 +764,12 @@ socGoal.total
 ###total
 ```{r}
 total <- state.total / infGoal.total / socGoal.total
-ggsave(here("models/plots_16models_graded.pdf"), width=22, height=8)
+ggsave(here("analysis/figures/plots_16models_graded.pdf"), width=22, height=8)
 
 # without human data
 total <- state.plot + infGoal.plot + socGoal.plot & theme(legend.position = "right") 
 total + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/plots_16models_graded_predictions.pdf"), width=24, height=8)
+ggsave(here("analysis/figures/plots_16models_graded_predictions.pdf"), width=24, height=8)
 ```
 
 ## line plots - averaged
@@ -939,7 +939,7 @@ emoComm_ave_plot <- ggplot(emoComm_ave, aes(x = model, y = mean,
   #ggtitle("Human") +
   theme(plot.title = element_text(hjust = 0.5))
 emoComm_ave_plot
-ggsave(here("models/plots_emocomm.pdf"), width=25, height=3)
+ggsave(here("analysis/figures/plots_emocomm.pdf"), width=25, height=3)
 
 ```
 ###total
@@ -947,11 +947,11 @@ ggsave(here("models/plots_emocomm.pdf"), width=25, height=3)
 #total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot + emoComm_ave_plot & theme(legend.position = "top") 
 total_ave <- state_ave_plot + infGoal_ave_plot + socGoal_ave_plot & theme(legend.position = "top") 
 total_ave + plot_layout(ncol=1, guides = "collect")
-ggsave(here("models/plots_14models_averaged.pdf"), width=22, height=8)
+ggsave(here("analysis/figures/plots_14models_averaged.pdf"), width=22, height=8)
 ```
 
 ### analysis
-```{r cache = TRUE}
+```{r}
 d2$response <- as.numeric(d2$response)
 # Bayesian mixed-effects model
 state <- brm(response ~ utt * exp + (1 + utt*exp|id) + (1 + utt*exp|race), 
