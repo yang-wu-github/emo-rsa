@@ -18,7 +18,7 @@ Wu, Y.*, Tessler, M. H.*, Asaba, M., Zhu, P., Gweon, H., & Frank, M. C. (2021). 
         - [Inferring communicative goals](https://jhukrieger.co1.qualtrics.com/jfe/form/SV_8pQi8lY6wEDIJKd)
 
 - Structure of this repository
-    - **1data**: behavioral data
-    - **2models**: all models tested
-    - **3analysis**: analysis of behavioral data and comparison between behavioral data and model predictions
-    - **4paper**: materials used in the paper
+    - **data**: behavioral data
+    - **models**: all models tested
+    - **analysis**: analysis of behavioral data and comparison between behavioral data and model predictions
+    - **paper**: materials used in the paper
