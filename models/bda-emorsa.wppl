@@ -1,14 +1,15 @@
 
-// time webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 1
+// webppl bda-emorsa.wppl --require webppl-csv --require ~/tools/webppl-sample-writer-fork --require emorsaUtils 1
 
+// this script will run 1 chain of 1 model
 var args = process.argv
 var chain = last(args) // load index as last command line index
 // var modelName = args[args.length - 2]
 
 // HELPER FUNCTIONS
-var df_semantics = dataFrame(csv.read("clean_semantics_params.csv"), ["state", "a","b"])
-var df_goals = dataFrame(csv.read("clean_data_goals.csv"), ["response"])
-var df_state = dataFrame(csv.read("clean_data_true_state.csv"), ["response"])
+var df_semantics = dataFrame(csv.read("../data/clean_semantics_params.csv"), ["state", "a","b"])
+var df_goals = dataFrame(csv.read("../data/clean_data_goals.csv"), ["response"])
+var df_state = dataFrame(csv.read("../data/clean_data_true_state.csv"), ["response"])
 
 var states = levels(df_semantics, "state")
 var semObjects = levels(df_semantics, "trial")
@@ -60,17 +61,17 @@ var modelsWithWeights = [
   "Md6_UttBalEmoTruSoc"
 ]
 
-
+// taking index from command line, and selecting model to run
 var modelIndices = _.keys(modelObj)
-var modelIndex = (chain - 1) % modelIndices.length
+var modelIndex = (chain - 1) % modelIndices.length // which model to run (index)
 display(modelIndex)
-var modelName = modelIndices[modelIndex]
+var modelName = modelIndices[modelIndex] // name of which model to run
 display(modelName)
 display(modelsWithWeights.indexOf(modelName))
 
-var modelHasWeights = modelsWithWeights.indexOf(modelName) > -1
+var modelHasWeights = modelsWithWeights.indexOf(modelName) > -1 // determine if we are dealing with a model that uses weight parameters
 display(modelHasWeights)
-var chain_num = Math.ceil(chain / modelIndices.length)
+var chain_num = Math.ceil(chain / modelIndices.length) // running same model multiple times
 display(chain_num)
 
 var rsaModel = modelObj[modelName]
@@ -212,6 +213,7 @@ var model = function(){
 
 
 var totalIterations = 20000, lag =  1;
+// var totalIterations = 20000, lag =  1;
 // var totalIterations = 2000, lag =  1;
 var samples = totalIterations/(lag + 1), burn = totalIterations;// / 2;
 
